@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin';
 import { slugify } from '@/lib/utils';
+import { formatBlogContent } from '@/lib/format-content';
 
 // GET /api/admin/blogs/[id]
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -79,7 +80,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (typeof title === 'string') updates.title = title.trim();
     if (rawSlug !== undefined) updates.slug = slugify(rawSlug);
     if (excerpt !== undefined) updates.excerpt = excerpt?.trim() ?? null;
-    if (content !== undefined) { updates.content = content; updates.reading_time = reading_time; }
+    if (content !== undefined) { updates.content = formatBlogContent(content); updates.reading_time = reading_time; }
     if (featured_image !== undefined) updates.featured_image = featured_image ?? null;
     if (category_id !== undefined) updates.category_id = category_id ?? null;
     if (tags !== undefined) updates.tags = tags;

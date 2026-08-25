@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin';
 import { slugify } from '@/lib/utils';
+import { formatBlogContent } from '@/lib/format-content';
 
 // GET /api/admin/blogs — Fetch all blogs for admin panel
 export async function GET(request: NextRequest) {
@@ -84,12 +85,15 @@ export async function POST(request: NextRequest) {
 
     const wordCount = content?.trim().split(/\s+/).length ?? 0;
     const reading_time = Math.max(1, Math.ceil(wordCount / 200));
+    // Plain text / Markdown typed in the editor becomes clean HTML.
+    // Content that already contains block HTML is passed through untouched.
+    const formattedContent = formatBlogContent(content ?? '');
 
     const { data: blog, error } = await admin.from('blogs').insert({
       title: title.trim(),
       slug,
       excerpt: excerpt?.trim() ?? null,
-      content: content ?? '',
+      content: formattedContent,
       featured_image: featured_image ?? null,
       category_id: category_id ?? null,
       author_id: author?.id ?? null,
