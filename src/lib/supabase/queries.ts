@@ -193,14 +193,18 @@ export async function getAllBlogSlugs(): Promise<string[]> {
  * Cookieless client so it doesn't force dynamic rendering.
  */
 export async function getBlogsSitemapData(): Promise<
-  { slug: string; updated_at: string }[]
+  { slug: string; updated_at: string; category_id: string | null }[]
 > {
   const supabase = createStaticClient();
   const { data } = await supabase
     .from('blogs')
-    .select('slug, updated_at')
+    .select('slug, updated_at, category_id')
     .eq('status', 'published');
-  return (data ?? []) as { slug: string; updated_at: string }[];
+  return (data ?? []) as {
+    slug: string;
+    updated_at: string;
+    category_id: string | null;
+  }[];
 }
 
 /**
