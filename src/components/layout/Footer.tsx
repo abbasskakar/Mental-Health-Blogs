@@ -31,7 +31,9 @@ const footerNav = {
     { label: "All Articles", href: "/blog" },
     { label: "Anxiety", href: "/blog/category/anxiety" },
     { label: "Depression", href: "/blog/category/depression" },
-    { label: "Mindfulness", href: "/blog/category/mindfulness" },
+    // Keep these in sync with the categories table — a slug that no longer
+    // exists 404s from every page in the site.
+    { label: "Stress", href: "/blog/category/stress" },
     { label: "Self-Care", href: "/blog/category/self-care" },
   ],
   "Company": [

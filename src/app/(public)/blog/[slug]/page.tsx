@@ -25,7 +25,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Article Not Found | MindfulPath" };
   }
 
-  const image = blog.featured_image ?? "https://mindfulpath.com/og-default.jpg";
+  // Falls back to the generated site card (src/app/opengraph-image.tsx), not a
+  // hard-coded URL on a domain this site does not own.
+  const image = blog.featured_image ?? absoluteUrl("/opengraph-image");
 
   return {
     title: blog.meta_title ?? blog.title,

@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "sonner";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
-import { SITE_URL, GOOGLE_SITE_VERIFICATION } from "@/lib/site";
+import { SITE_URL, GOOGLE_SITE_VERIFICATION, absoluteUrl } from "@/lib/site";
 import { getResolvedSettings } from "@/lib/settings";
 import { organizationSchema, websiteSchema, jsonLdScript } from "@/lib/schema";
 
@@ -20,6 +20,12 @@ const merriweather = Merriweather({
 // falling back to the code defaults in src/lib/site.ts.
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getResolvedSettings();
+
+  // Set the og:image explicitly rather than relying on the src/app/opengraph-image.tsx
+  // file convention: because this layout declares an `openGraph` object, the
+  // generated image was never merged in and pages shipped with no og:image at all.
+  // An admin-set Open Graph Image URL (Settings → SEO) still wins.
+  const ogImage = s.ogImage || absoluteUrl("/opengraph-image");
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -46,22 +52,20 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: "/",
     },
     openGraph: {
-      // Default og:image comes from src/app/opengraph-image.tsx; an admin-set
-      // Open Graph Image URL (Settings → SEO) overrides it.
       type: "website",
       locale: "en_US",
       url: SITE_URL,
       siteName: s.siteName,
       title: s.metaTitle,
       description: s.metaDescription,
-      ...(s.ogImage ? { images: [{ url: s.ogImage, width: 1200, height: 630 }] } : {}),
+      images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: s.metaTitle,
       description: s.metaDescription,
       creator: s.twitterHandle,
-      ...(s.ogImage ? { images: [s.ogImage] } : {}),
+      images: [ogImage],
     },
     robots: {
       index: true,
