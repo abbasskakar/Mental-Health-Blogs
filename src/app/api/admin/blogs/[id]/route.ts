@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin';
 import { slugify } from '@/lib/utils';
 import { formatBlogContent } from '@/lib/format-content';
+import { revalidateBlogPaths } from '@/lib/revalidate';
 
 // GET /api/admin/blogs/[id]
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -70,8 +71,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const wordCount = content?.trim().split(/\s+/).length ?? 0;
     const reading_time = wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 200)) : undefined;
 
-    // Fetch current blog to check if status changed to published
-    const { data: current } = await admin.from('blogs').select('status, published_at').eq('id', id).single();
+    // Fetch current blog to check if status changed to published, and to keep
+    // the old slug so a renamed post's previous URL can be purged too.
+    const { data: current } = await admin.from('blogs').select('slug, status, published_at').eq('id', id).single();
 
     const updates: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -99,6 +101,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     if (error) throw error;
 
+    // Revalidate when the post is public either side of the edit — unpublishing
+    // needs the caches cleared just as much as publishing does.
+    if (blog.status === 'published' || current?.status === 'published') {
+      revalidateBlogPaths(blog.slug, current?.slug);
+    }
+
     return NextResponse.json({ blog });
   } catch (error) {
     console.error('Admin blog PUT error:', error);
@@ -115,11 +123,18 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const { id } = await params;
     const admin = createAdminSupabaseClient();
 
+    // Read the slug before deleting — it's needed to purge the post's own URL.
+    const { data: existing } = await admin.from('blogs').select('slug, status').eq('id', id).single();
+
     // First delete all comments for this blog
     await admin.from('comments').delete().eq('blog_id', id);
 
     const { error } = await admin.from('blogs').delete().eq('id', id);
     if (error) throw error;
+
+    // Drop the deleted post from the listings and the sitemap, so crawlers
+    // aren't sent to a URL that now 404s.
+    if (existing?.status === 'published') revalidateBlogPaths(existing.slug);
 
     return NextResponse.json({ success: true });
   } catch (error) {

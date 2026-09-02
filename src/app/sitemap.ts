@@ -2,7 +2,10 @@ import { getBlogsSitemapData, getCategories } from '@/lib/supabase/queries';
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-export const revalidate = 3600; // Revalidate every hour
+// Matches the ISR window on the public pages. Admin publish/update also
+// revalidates this route on demand (src/lib/revalidate.ts); this timer is the
+// safety net for changes made outside the admin API, e.g. straight in the DB.
+export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [blogs, categories] = await Promise.all([

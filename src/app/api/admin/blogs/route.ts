@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin';
 import { slugify } from '@/lib/utils';
 import { formatBlogContent } from '@/lib/format-content';
+import { revalidateBlogPaths } from '@/lib/revalidate';
 
 // GET /api/admin/blogs — Fetch all blogs for admin panel
 export async function GET(request: NextRequest) {
@@ -107,6 +108,10 @@ export async function POST(request: NextRequest) {
     }).select().single();
 
     if (error) throw error;
+
+    // A published post is no use sitting behind a stale cache — push it live
+    // (and into the sitemap) now rather than on the next ISR tick.
+    if (blog.status === 'published') revalidateBlogPaths(blog.slug);
 
     return NextResponse.json({ blog }, { status: 201 });
   } catch (error) {
