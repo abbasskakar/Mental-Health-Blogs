@@ -3,6 +3,7 @@ import ContactPageClient from "@/components/contact/ContactPageClient";
 import { contactFaqs } from "@/lib/contact-faqs";
 import { faqSchema, jsonLdScript } from "@/lib/schema";
 import { getResolvedSettings } from "@/lib/settings";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
     description: "Questions, suggestions, or collaboration requests — reach out to the MindfulPath team.",
     type: "website",
     url: "/contact",
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

@@ -3,7 +3,7 @@ import { getFeaturedBlogs, getPublishedBlogs, getCategories, getSiteStats } from
 import { FAQ_DATA } from '@/lib/data';
 import HomePageClient from '@/components/home/HomePageClient';
 import type { Metadata } from 'next';
-import { SITE_NAME, SITE_TAGLINE } from '@/lib/site';
+import { SITE_NAME, SITE_TAGLINE, DEFAULT_OG_IMAGE } from '@/lib/site';
 import { faqSchema, jsonLdScript } from '@/lib/schema';
 
 export const metadata: Metadata = {
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     description: 'Evidence-based mental health articles written by licensed clinicians.',
     type: 'website',
     url: '/',
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

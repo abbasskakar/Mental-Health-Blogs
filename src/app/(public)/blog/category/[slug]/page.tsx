@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { BlogWithRelations } from "@/types/database";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
 import { breadcrumbSchema, jsonLdScript } from "@/lib/schema";
 
 interface Props {
@@ -33,7 +33,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: `/blog/category/${slug}` },
-    openGraph: { title, description, type: "website", url: `/blog/category/${slug}` },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `/blog/category/${slug}`,
+      images: [DEFAULT_OG_IMAGE],
+    },
   };
 }
 

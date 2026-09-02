@@ -3,6 +3,7 @@ import { getPublishedBlogs, getCategories } from '@/lib/supabase/queries';
 import BlogListClient from '@/components/blog/BlogListClient';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { DEFAULT_OG_IMAGE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'All Articles',
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
     description: 'Browse evidence-based mental health articles written by licensed clinicians.',
     type: 'website',
     url: '/blog',
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 
