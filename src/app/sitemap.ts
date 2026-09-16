@@ -2,10 +2,22 @@ import { getBlogsSitemapData, getCategories } from '@/lib/supabase/queries';
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-// Matches the ISR window on the public pages. Admin publish/update also
-// revalidates this route on demand (src/lib/revalidate.ts); this timer is the
-// safety net for changes made outside the admin API, e.g. straight in the DB.
-export const revalidate = 60;
+// Built fresh on every request, deliberately.
+//
+// This route used to be cached (`revalidate = 60`) with an on-demand
+// `revalidatePath('/sitemap.xml')` from the admin API. Neither worked in
+// production: a fully-static metadata route gets promoted to a plain file on
+// the CDN at build time, so the deployed sitemap only ever changed on redeploy
+// (verifiable in prod: the response carries no `X-Nextjs-Prerender` header,
+// unlike the ISR'd blog pages). The result was a sitemap that sat 14 days
+// stale and silently omitted a published post.
+//
+// `force-dynamic` is the documented escape hatch — per the sitemap docs a
+// sitemap is "a special Route Handler that is cached by default unless it uses
+// a Request-time API or dynamic config option". The cost is one Supabase query
+// per request, and only crawlers request this URL, so a new post is in the
+// sitemap the instant it is published.
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [blogs, categories] = await Promise.all([

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -10,30 +10,49 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
-  { label: "Home", href: "/" },
-  {
-    label: "Blogs",
-    href: "/blog",
-    dropdown: [
-      { label: "All Articles", href: "/blog" },
-      { label: "Anxiety", href: "/blog/category/anxiety" },
-      { label: "Depression", href: "/blog/category/depression" },
-      { label: "Mindfulness", href: "/blog/category/mindfulness" },
-      { label: "Self-Care", href: "/blog/category/self-care" },
-    ],
-  },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
+interface NavItem {
+  label: string;
+  href: string;
+  dropdown?: { label: string; href: string }[];
+}
+
+/** Categories the nav links to, sourced from the database by the layout. */
+export interface NavCategory {
+  slug: string;
+  name: string;
+}
 
 export default function Navbar({
   siteName = "MindfulPath",
   logoUrl = "",
+  categories = [],
 }: {
   siteName?: string;
   logoUrl?: string;
+  categories?: NavCategory[];
 }) {
+  // Built from the real `categories` table rather than a hand-written list.
+  // The hand-written one had drifted: it linked to /blog/category/mindfulness,
+  // a category that does not exist, so the header offered a 404 on every page.
+  const navLinks: NavItem[] = useMemo(
+    () => [
+      { label: "Home", href: "/" },
+      {
+        label: "Blogs",
+        href: "/blog",
+        dropdown: [
+          { label: "All Articles", href: "/blog" },
+          ...categories.map((c) => ({
+            label: c.name,
+            href: `/blog/category/${c.slug}`,
+          })),
+        ],
+      },
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+    [categories]
+  );
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -242,20 +261,44 @@ export default function Navbar({
                 </button>
               </div>
 
+              {/* Category links are rendered here too, not just in the desktop
+                  dropdown — on mobile the drawer was the only nav and it
+                  offered no way into a category page at all. */}
               <nav className="p-4 space-y-0.5">
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150"
-                    style={
-                      isActive(link.href)
-                        ? { color: "var(--accent)", background: "var(--accent-subtle)" }
-                        : { color: "var(--text-muted)" }
-                    }
-                  >
-                    {link.label}
-                  </Link>
+                  <div key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150"
+                      style={
+                        isActive(link.href)
+                          ? { color: "var(--accent)", background: "var(--accent-subtle)" }
+                          : { color: "var(--text-muted)" }
+                      }
+                    >
+                      {link.label}
+                    </Link>
+                    {link.dropdown && (
+                      <div className="ml-3 pl-3 space-y-0.5" style={{ borderLeft: "1px solid var(--border)" }}>
+                        {link.dropdown
+                          .filter((item) => item.href !== link.href)
+                          .map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className="flex items-center px-3 py-2 rounded-lg text-sm transition-colors duration-150"
+                              style={
+                                isActive(item.href)
+                                  ? { color: "var(--accent)" }
+                                  : { color: "var(--text-subtle)" }
+                              }
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </nav>
             </motion.div>

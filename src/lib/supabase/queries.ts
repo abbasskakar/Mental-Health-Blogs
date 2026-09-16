@@ -326,6 +326,36 @@ export async function submitContactMessage(data: {
  * concurrent likes can't lose increments; falls back to read+update when the
  * function hasn't been created yet.
  */
+/**
+ * Records one view of a post. Same shape as likeBlog: atomic RPC first, with a
+ * read-modify-write fallback so it still works before sql/increment_views.sql
+ * has been applied.
+ *
+ * Returns false when the blog does not exist, so the caller can answer 404.
+ */
+export async function incrementBlogViews(blogId: string): Promise<boolean> {
+  const admin = createAdminSupabaseClient();
+
+  const { data, error } = await admin
+    .from('blogs')
+    .select('views_count')
+    .eq('id', blogId)
+    .single();
+  if (error || !data) return false;
+
+  // Atomic path
+  const { error: rpcError } = await admin.rpc('increment_views', { p_blog_id: blogId });
+  if (!rpcError) return true;
+
+  // Fallback: non-atomic read-modify-write (used until the SQL function exists)
+  const { error: updateError } = await admin
+    .from('blogs')
+    .update({ views_count: (data.views_count ?? 0) + 1 })
+    .eq('id', blogId);
+  if (updateError) throw updateError;
+  return true;
+}
+
 export async function likeBlog(blogId: string): Promise<boolean> {
   const admin = createAdminSupabaseClient();
 

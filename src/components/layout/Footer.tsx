@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brain, Mail, ArrowRight } from "lucide-react";
-import { SITE_CONFIG, CATEGORIES } from "@/lib/data";
+import { SITE_CONFIG } from "@/lib/data";
+import type { NavCategory } from "@/components/layout/Navbar";
 
 const TwitterIcon = () => (
   <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
@@ -26,29 +27,34 @@ const socialLinks = [
   { Icon: InstagramIcon, href: SITE_CONFIG.social.instagram, label: "Instagram" },
 ];
 
-const footerNav = {
-  "Articles": [
-    { label: "All Articles", href: "/blog" },
-    { label: "Anxiety", href: "/blog/category/anxiety" },
-    { label: "Depression", href: "/blog/category/depression" },
-    // Keep these in sync with the categories table — a slug that no longer
-    // exists 404s from every page in the site.
-    { label: "Stress", href: "/blog/category/stress" },
-    { label: "Self-Care", href: "/blog/category/self-care" },
-  ],
-  "Company": [
-    { label: "About", href: "/about" },
-    { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy-policy" },
-    { label: "Disclaimer", href: "/disclaimer" },
-  ],
-};
+const companyLinks = [
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Disclaimer", href: "/disclaimer" },
+];
 
 export default function Footer({
   siteName = "MindfulPath",
+  categories = [],
 }: {
   siteName?: string;
+  categories?: NavCategory[];
 }) {
+  // Built from the real `categories` table. The previous hand-written list had
+  // drifted out of sync: it showed only 4 of the 6 categories, so Trauma and
+  // Relationships had no link from anywhere in the site chrome.
+  const footerNav = {
+    Articles: [
+      { label: "All Articles", href: "/blog" },
+      ...categories.map((c) => ({
+        label: c.name,
+        href: `/blog/category/${c.slug}`,
+      })),
+    ],
+    Company: companyLinks,
+  };
+
   return (
     <footer
       className="mt-0"

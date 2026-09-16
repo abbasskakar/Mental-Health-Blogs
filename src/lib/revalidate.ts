@@ -4,9 +4,7 @@ import { revalidatePath } from 'next/cache';
  * Invalidates every cached surface a blog post appears on.
  *
  * Called after an admin creates, updates, or deletes a post so the change is
- * live immediately instead of waiting out the ISR timer. The sitemap matters
- * most here: crawlers discover new URLs from it, so a post missing from
- * sitemap.xml can go unindexed for days even though the page itself is live.
+ * live immediately instead of waiting out the ISR timer.
  *
  * Pass `previousSlug` when a post's slug changed, so the old URL stops being
  * served from cache.
@@ -17,9 +15,10 @@ export function revalidateBlogPaths(slug?: string | null, previousSlug?: string 
   revalidatePath('/blog');
   revalidatePath('/blog/category/[slug]', 'page');
 
-  // sitemap.ts is a cached Route Handler; without this it keeps serving the
-  // stale URL list until its own revalidate window expires.
-  revalidatePath('/sitemap.xml');
+  // No sitemap call here on purpose: src/app/sitemap.ts is `force-dynamic`, so
+  // it is rebuilt from the database on every request and can never go stale.
+  // (Revalidating it used to be listed here and was a silent no-op — the route
+  // was served as a build-time static file, so nothing invalidated it.)
 
   if (slug) revalidatePath(`/blog/${slug}`);
   if (previousSlug && previousSlug !== slug) revalidatePath(`/blog/${previousSlug}`);

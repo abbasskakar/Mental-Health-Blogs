@@ -2,7 +2,6 @@
 import { getPublishedBlogs, getCategories } from '@/lib/supabase/queries';
 import BlogListClient from '@/components/blog/BlogListClient';
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { DEFAULT_OG_IMAGE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -20,30 +19,23 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-interface Props {
-  searchParams: Promise<{ category?: string; q?: string }>;
-}
-
-export default async function BlogListPage({ searchParams }: Props) {
-  const { category, q } = await searchParams;
-
-  // Old ?category= links → permanent-ish redirect to the clean canonical path
-  // so there's no duplicate-content variant of /blog.
-  if (category && category !== 'all') {
-    redirect(`/blog/category/${category}`);
-  }
-
+// This page deliberately takes NO `searchParams`.
+//
+// Reading them made the whole route dynamic: every request re-rendered and
+// re-queried Supabase, and the site's main hub page answered in ~2.0s while
+// every other page answered in ~0.4-0.6s. It is the page that links to every
+// article, so it is the worst one to have slow.
+//
+// `?category=` / `?q=` still work — BlogListClient picks them up from the URL
+// after mount. That has to stay out of `useSearchParams()`: in a prerendered
+// route that hook forces everything up to the nearest Suspense boundary to
+// render on the client, which would pull all the article links out of the
+// initial HTML — the opposite of what this page is for.
+export default async function BlogListPage() {
   const [{ blogs }, categories] = await Promise.all([
     getPublishedBlogs({ limit: 50, sortBy: 'newest' }),
     getCategories(),
   ]);
 
-  return (
-    <BlogListClient
-      initialBlogs={blogs}
-      categories={categories}
-      initialCategory="all"
-      initialSearch={q ?? ''}
-    />
-  );
+  return <BlogListClient initialBlogs={blogs} categories={categories} />;
 }

@@ -17,9 +17,8 @@ export async function POST(_request: NextRequest) {
     revalidatePath('/blog/category/[slug]', 'page');
     revalidatePath('/about');
     revalidatePath('/contact');
-    // sitemap.ts is a cached Route Handler — it needs invalidating explicitly,
-    // otherwise a full purge still leaves crawlers reading a stale URL list.
-    revalidatePath('/sitemap.xml');
+    // sitemap.xml is not listed: it renders `force-dynamic`, so it is always
+    // built fresh from the database and there is no cache entry to purge.
 
     return NextResponse.json({ revalidated: true, timestamp: new Date().toISOString() });
   } catch (error) {

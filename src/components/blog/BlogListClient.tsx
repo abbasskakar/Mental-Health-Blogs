@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Search, X, BookOpen, SlidersHorizontal } from "lucide-react";
 import BlogCard from "@/components/blog/BlogCard";
 import type { BlogWithRelations, CategoryRow } from "@/types/database";
@@ -48,6 +49,7 @@ function adaptBlog(blog: BlogWithRelations) {
 }
 
 export default function BlogListClient({ initialBlogs, categories, initialCategory = "all", initialSearch = "" }: BlogListClientProps) {
+  const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState("newest");
@@ -55,6 +57,30 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
   // client-side button, so crawlers — which don't click — only ever saw the
   // first 9 posts and the rest got no link from the main listing page.
   const [visibleCount, setVisibleCount] = useState(50);
+
+  // Legacy `/blog?category=x` and `/blog?q=x` links are sent on to their real
+  // pages from here, on the client.
+  //
+  // The page used to do this on the server, but reading `searchParams` there
+  // made /blog dynamic: every request re-rendered and re-queried Supabase, and
+  // the page that links to every article answered in ~2s instead of ~0.4s.
+  // `useSearchParams()` is not an option either — in a prerendered route it
+  // forces this whole tree to render on the client, which would strip every
+  // article link out of the initial HTML.
+  //
+  // An unknown category slug is ignored rather than followed, so a stale link
+  // lands on the full list instead of a 404.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("category");
+    const q = params.get("q");
+
+    if (cat && cat !== "all" && categories.some((c) => c.slug === cat)) {
+      router.replace(`/blog/category/${cat}`);
+    } else if (q) {
+      router.replace(`/search?q=${encodeURIComponent(q)}`);
+    }
+  }, [categories, router]);
 
   const adapted = useMemo(() => initialBlogs.map(adaptBlog), [initialBlogs]);
 

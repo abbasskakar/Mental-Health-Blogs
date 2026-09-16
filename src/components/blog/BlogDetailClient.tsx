@@ -73,6 +73,18 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
   const [likesCount, setLikesCount] = useState(blog.likes_count);
   const [bookmarked, setBookmarked] = useState(false);
 
+  // Record the view. Fire-and-forget: a failure here must never affect the
+  // article, and the server dedups per IP per post per hour, so a reload or
+  // React's double-invoked dev effect does not inflate the count.
+  useEffect(() => {
+    fetch("/api/blogs/view", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ blog_id: blog.id }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [blog.id]);
+
   // Bookmark ("Save for Later") — persisted in localStorage
   useEffect(() => {
     try {
