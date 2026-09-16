@@ -196,6 +196,9 @@
     font-weight: 600;
   }
   .prose td { color: var(--text-muted); }
+  /* The table scrolls sideways on narrow screens; without a visible bar there
+     is nothing to suggest there is more of it. Matches .sidebar-scroll. */
+  .prose table { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
   .prose tbody tr:nth-child(even) { background: var(--bg-alt); }
   .prose caption {
     caption-side: bottom;
