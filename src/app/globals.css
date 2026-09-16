@@ -228,6 +228,20 @@
   .text-accent { color: var(--accent); }
   .text-muted { color: var(--text-muted); }
 
+  /* Gradient headline text. Used since the first commit on the About and
+     Contact heroes and on the About stat figures, but never actually defined,
+     so all five elements rendered as plain body text. Only applied where the
+     browser can clip a background to the glyphs; otherwise the text keeps its
+     inherited colour rather than turning invisible. */
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .gradient-text {
+      background-image: linear-gradient(120deg, var(--accent), var(--accent-hover));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
   /* Surface backgrounds */
   .bg-surface { background: var(--surface); }
   .bg-surface-alt { background: var(--surface-alt); }
