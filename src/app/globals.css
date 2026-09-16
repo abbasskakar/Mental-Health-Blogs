@@ -123,6 +123,9 @@
     font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
+    /* The table of contents links to these by #id and the header is fixed at
+       61px, so without this a jumped-to heading lands underneath the navbar. */
+    scroll-margin-top: 5.5rem;
   }
   .prose h2 { font-size: 1.625rem; }
   .prose h3 { font-size: 1.25rem; }
@@ -133,6 +136,8 @@
     font-size: 1.0625rem;
     line-height: 1.8;
   }
+  /* A long URL or unbroken string would otherwise push past the column. */
+  .prose p, .prose li, .prose td, .prose th { overflow-wrap: break-word; }
   .prose a {
     color: var(--accent);
     text-decoration: underline;
@@ -152,6 +157,52 @@
     color: var(--text-muted);
   }
   .prose img { border-radius: 0.75rem; max-width: 100%; height: auto; }
+  .prose hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* Tables were allowed by the sanitizer but had no styles at all: zero cell
+     padding and no borders, so a comparison table rendered as columns of text
+     running into each other. `display: block` + `width: max-content` lets a
+     wide table scroll horizontally instead of crushing itself on a phone. */
+  .prose table {
+    /* display:block + overflow-x makes the table its own scroll container, so a
+       wide table scrolls inside the column instead of widening it. No
+       `width: max-content` here: that feeds the table's full width back into
+       the layout as a min-content floor and the page gains a horizontal
+       scrollbar of its own. */
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 1.75rem 0;
+    font-size: 0.9375rem;
+  }
+  .prose th, .prose td {
+    border: 1px solid var(--border);
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    vertical-align: top;
+    /* Without a floor, a three-column table squeezed into a 375px phone gives
+       each column ~100px and wraps cells to ten lines. Holding the columns at a
+       readable width and letting the table scroll sideways reads far better. */
+    min-width: 9rem;
+  }
+  .prose th {
+    background: var(--surface-alt);
+    color: var(--text);
+    font-weight: 600;
+  }
+  .prose td { color: var(--text-muted); }
+  .prose tbody tr:nth-child(even) { background: var(--bg-alt); }
+  .prose caption {
+    caption-side: bottom;
+    padding-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-subtle);
+  }
   .prose code {
     background: var(--surface-alt);
     padding: 0.15em 0.45em;

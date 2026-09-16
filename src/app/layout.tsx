@@ -7,6 +7,7 @@ import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import { SITE_URL, GOOGLE_SITE_VERIFICATION, absoluteUrl } from "@/lib/site";
 import { getResolvedSettings } from "@/lib/settings";
 import { organizationSchema, websiteSchema, jsonLdScript } from "@/lib/schema";
+import { accentHover } from "@/lib/colors";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const merriweather = Merriweather({
@@ -112,9 +113,14 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={jsonLdScript(websiteSchema())}
         />
-        {/* Admin-chosen accent color (Settings → Appearance) overrides the default */}
+        {/* Admin-chosen accent color (Settings → Appearance) overrides the
+            default. --accent-hover is derived from it rather than left at the
+            stylesheet's teal, which would make links change hue on hover.
+            getResolvedSettings has already rejected anything unreadable. */}
         {settings.accentColor && (
-          <style>{`:root{--accent:${settings.accentColor};}`}</style>
+          <style>{`:root{--accent:${settings.accentColor};--accent-hover:${accentHover(
+            settings.accentColor
+          )};}`}</style>
         )}
       </head>
       <body className={`${inter.variable} ${merriweather.variable}`}>

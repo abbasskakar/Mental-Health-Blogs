@@ -256,8 +256,13 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10">
 
-          {/* Article Content */}
-          <div>
+          {/* Article Content.
+              min-w-0: a grid item defaults to min-width:auto, so it refuses to
+              shrink below its content's min-content width. Anything wide in the
+              article — a table, a long code block — would otherwise stretch this
+              column past the viewport and give the whole page a horizontal
+              scrollbar instead of scrolling inside itself. */}
+          <div className="min-w-0">
             {/* Medical Disclaimer */}
             <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 mb-8">
               <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />

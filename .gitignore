@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local data backups (private)
 /backup-mockdata-*/
+
+# claude code local state
+.claude/settings.local.json

@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
+import { isAccentReadable } from '@/lib/colors';
 import {
   SITE_NAME,
   SITE_TAGLINE,
@@ -72,7 +73,10 @@ export const getResolvedSettings = cache(async (): Promise<ResolvedSiteSettings>
         ? seo.googleAnalyticsId.trim()
         : DEFAULTS.googleAnalyticsId,
       twitterHandle: seo.twitterHandle?.trim() || DEFAULTS.twitterHandle,
-      accentColor: /^#[0-9a-fA-F]{6}$/.test(appearance.accentColor ?? '')
+      // Checked for contrast, not just hex format. A saved `#1a1e1e` reached
+      // production and rendered every link in every article at 1.05:1 against
+      // the dark background; the format test alone happily allowed it.
+      accentColor: isAccentReadable(appearance.accentColor)
         ? appearance.accentColor
         : DEFAULTS.accentColor,
       defaultTheme: theme,
