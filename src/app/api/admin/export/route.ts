@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse(JSON.stringify(data ?? [], null, 2), {
         headers: {
           'Content-Type': 'application/json',
-          'Content-Disposition': 'attachment; filename="mindfulpath-blogs.json"',
+          'Content-Disposition': 'attachment; filename="regulatedself-blogs.json"',
         },
       });
     }
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse(csv, {
         headers: {
           'Content-Type': 'text/csv',
-          'Content-Disposition': 'attachment; filename="mindfulpath-subscribers.csv"',
+          'Content-Disposition': 'attachment; filename="regulatedself-subscribers.csv"',
         },
       });
     }
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse(csv, {
         headers: {
           'Content-Type': 'text/csv',
-          'Content-Disposition': 'attachment; filename="mindfulpath-comments.csv"',
+          'Content-Disposition': 'attachment; filename="regulatedself-comments.csv"',
         },
       });
     }

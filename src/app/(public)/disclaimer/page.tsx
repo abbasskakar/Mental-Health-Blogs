@@ -3,7 +3,7 @@ import { SITE_CONFIG } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Disclaimer",
-  description: "Medical and general disclaimer for content published on MindfulPath.",
+  description: "Medical and general disclaimer for content published on RegulatedSelf.",
   alternates: { canonical: "/disclaimer" },
 };
 

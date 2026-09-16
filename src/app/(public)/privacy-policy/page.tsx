@@ -3,7 +3,7 @@ import { SITE_CONFIG } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How MindfulPath collects, uses, and protects your personal information.",
+  description: "How RegulatedSelf collects, uses, and protects your personal information.",
   alternates: { canonical: "/privacy-policy" },
 };
 

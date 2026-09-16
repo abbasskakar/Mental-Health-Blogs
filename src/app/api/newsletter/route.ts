@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Successfully subscribed! Welcome to MindfulPath.',
+      message: 'Successfully subscribed! Welcome to RegulatedSelf.',
     });
   } catch (error: any) {
     // Duplicate email is not an error (upsert handles it)

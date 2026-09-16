@@ -5,7 +5,7 @@ import { Mail, Phone, MapPin, Send, CheckCircle, MessageSquare } from "lucide-re
 import { contactFaqs } from "@/lib/contact-faqs";
 
 export default function ContactPageClient({
-  supportEmail = "hello@mindfulpath.com",
+  supportEmail = "hello@regulatedself.com",
 }: {
   supportEmail?: string;
 }) {

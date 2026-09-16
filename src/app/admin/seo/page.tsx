@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { SITE_URL } from "@/lib/site";
 
 interface SeoBlogs {
   id: string;
@@ -102,7 +103,7 @@ export default function AdminSeoPage() {
     : 0;
 
   const sitemapUrls = publishedBlogs.map(b => ({
-    url: `https://mindfulpath.com/blog/${b.slug}`,
+    url: `${SITE_URL}/blog/${b.slug}`,
     lastmod: b.published_at ? new Date(b.published_at).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
     priority: "0.8",
   }));
@@ -292,7 +293,7 @@ export default function AdminSeoPage() {
             <p className="text-sm text-body">
               <strong>{sitemapUrls.length} URLs</strong> will be included in your sitemap for published blogs.
               Your sitemap is auto-generated at{" "}
-              <a href="/sitemap.xml" target="_blank" className="text-accent underline">mindfulpath.com/sitemap.xml</a>.
+              <a href="/sitemap.xml" target="_blank" className="text-accent underline">{SITE_URL.replace(/^https?:\/\//, "")}/sitemap.xml</a>.
             </p>
           </div>
 

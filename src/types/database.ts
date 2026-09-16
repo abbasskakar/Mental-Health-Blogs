@@ -1,4 +1,4 @@
-// Auto-generated Supabase Database Types for MindfulPath Blog
+// Auto-generated Supabase Database Types for RegulatedSelf Blog
 // Last updated: 2026-07-13
 
 export type Json =

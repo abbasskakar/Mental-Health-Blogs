@@ -21,11 +21,16 @@ const InstagramIcon = () => (
   </svg>
 );
 
+// Only the accounts that actually exist. SITE_CONFIG.social is empty until
+// real handles are added, so this renders nothing rather than linking to
+// profiles the site does not own.
 const socialLinks = [
   { Icon: TwitterIcon, href: SITE_CONFIG.social.twitter, label: "X / Twitter" },
   { Icon: LinkedInIcon, href: SITE_CONFIG.social.linkedin, label: "LinkedIn" },
   { Icon: InstagramIcon, href: SITE_CONFIG.social.instagram, label: "Instagram" },
-];
+].filter((s): s is { Icon: () => React.JSX.Element; href: string; label: string } =>
+  Boolean(s.href)
+);
 
 const companyLinks = [
   { label: "About", href: "/about" },
@@ -35,7 +40,7 @@ const companyLinks = [
 ];
 
 export default function Footer({
-  siteName = "MindfulPath",
+  siteName = "RegulatedSelf",
   categories = [],
 }: {
   siteName?: string;
@@ -83,10 +88,11 @@ export default function Footer({
 
             {/* Disclaimer */}
             <p className="text-xs leading-relaxed mb-6 p-3 rounded-lg border" style={{ color: "var(--text-subtle)", borderColor: "var(--border)", background: "var(--surface)" }}>
-              Content on MindfulPath is for educational purposes only and does not constitute medical advice. Always consult a qualified professional.
+              Content on RegulatedSelf is for educational purposes only and does not constitute medical advice. Always consult a qualified professional.
             </p>
 
-            {/* Social */}
+            {/* Social — hidden entirely while there are no accounts to link to */}
+            {socialLinks.length > 0 && (
             <div className="flex items-center gap-2">
               {socialLinks.map(({ Icon, href, label }) => (
                 <Link
@@ -100,6 +106,7 @@ export default function Footer({
                 </Link>
               ))}
             </div>
+            )}
           </div>
 
           {/* Link columns */}

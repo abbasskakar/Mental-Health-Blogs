@@ -166,7 +166,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
         {sidebarOpen && (
           <div>
-            <div className="font-semibold text-sm" style={{ color: "var(--text)" }}>MindfulPath</div>
+            <div className="font-semibold text-sm" style={{ color: "var(--text)" }}>RegulatedSelf</div>
             <div className="text-[10px] font-medium" style={{ color: "var(--accent)" }}>Admin Panel</div>
           </div>
         )}

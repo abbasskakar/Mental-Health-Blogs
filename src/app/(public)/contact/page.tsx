@@ -8,11 +8,11 @@ import { DEFAULT_OG_IMAGE } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with MindfulPath — questions, blog topic suggestions, or collaboration requests. We respond within 24–48 hours.",
+    "Get in touch with RegulatedSelf — questions, blog topic suggestions, or collaboration requests. We respond within 24–48 hours.",
   alternates: { canonical: "/contact" },
   openGraph: {
-    title: "Contact MindfulPath",
-    description: "Questions, suggestions, or collaboration requests — reach out to the MindfulPath team.",
+    title: "Contact RegulatedSelf",
+    description: "Questions, suggestions, or collaboration requests — reach out to the RegulatedSelf team.",
     type: "website",
     url: "/contact",
     images: [DEFAULT_OG_IMAGE],

@@ -22,8 +22,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const { data: newComment, error: replyError } = await admin.from('comments').insert({
         blog_id: original.blog_id,
         parent_id: id,
-        author_name: 'MindfulPath Admin',
-        author_email: user.email ?? 'admin@mindfulpath.com',
+        author_name: 'RegulatedSelf Admin',
+        author_email: user.email ?? 'admin@regulatedself.com',
         content: reply,
         status: 'approved',
         is_admin_reply: true,

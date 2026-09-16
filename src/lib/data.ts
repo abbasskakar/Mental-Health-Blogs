@@ -1,27 +1,22 @@
 // Placeholder data for Phase 1 Design
 
 export const SITE_CONFIG = {
-  name: "MindfulPath",
+  name: "RegulatedSelf",
   tagline: "Your Guide to Mental Wellness",
   description:
     "Evidence-based mental health articles to help you navigate anxiety, depression, stress, and emotional wellbeing.",
-  url: "https://mindfulpath.com",
+  url: "https://regulatedself.com",
   author: {
     name: "Dr. Sarah Mitchell",
     bio: "Licensed Clinical Psychologist with 10+ years of experience in cognitive behavioral therapy and mindfulness-based interventions.",
     avatar: "/images/author-avatar.jpg",
     credentials: "Ph.D., Licensed Clinical Psychologist",
-    social: {
-      twitter: "https://twitter.com",
-      linkedin: "https://linkedin.com",
-    },
+    // Empty: these were bare "https://twitter.com" links that just dropped the
+    // reader on the platform's homepage. Fill in once real profiles exist.
+    social: {} as Record<string, string>,
   },
-  social: {
-    twitter: "https://twitter.com/mindfulpath",
-    linkedin: "https://linkedin.com/company/mindfulpath",
-    instagram: "https://instagram.com/mindfulpath",
-    facebook: "https://facebook.com/mindfulpath",
-  },
+  // Empty until the accounts actually exist — see SOCIAL_LINKS in lib/site.ts.
+  social: {} as Record<string, string>,
 };
 
 export const CATEGORIES = [

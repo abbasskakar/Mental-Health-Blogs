@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const blog = await getBlogBySlug(slug);
 
   if (!blog) {
-    return { title: "Article Not Found | MindfulPath" };
+    return { title: "Article Not Found | RegulatedSelf" };
   }
 
   // Falls back to the generated site card (src/app/opengraph-image.tsx), not a

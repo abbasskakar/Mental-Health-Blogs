@@ -7,7 +7,7 @@ import { SITE_NAME, SITE_TAGLINE, DEFAULT_OG_IMAGE } from '@/lib/site';
 import { faqSchema, jsonLdScript } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  // absolute → bypasses the "%s | MindfulPath" template (brand already in title)
+  // absolute → bypasses the "%s | RegulatedSelf" template (brand already in title)
   title: { absolute: `${SITE_NAME} — ${SITE_TAGLINE}` },
   description:
     'Evidence-based mental health articles to help you navigate anxiety, depression, stress, and emotional wellbeing. Written by licensed clinicians.',

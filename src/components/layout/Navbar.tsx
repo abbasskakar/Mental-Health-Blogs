@@ -23,7 +23,7 @@ export interface NavCategory {
 }
 
 export default function Navbar({
-  siteName = "MindfulPath",
+  siteName = "RegulatedSelf",
   logoUrl = "",
   categories = [],
 }: {

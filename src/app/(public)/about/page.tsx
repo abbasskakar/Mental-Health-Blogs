@@ -7,7 +7,7 @@ import { getSiteStats } from "@/lib/supabase/queries";
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about MindfulPath — our mission to provide evidence-based mental health guidance written by licensed professionals.",
+  description: "Learn about RegulatedSelf — our mission to provide evidence-based mental health guidance written by licensed professionals.",
   alternates: { canonical: "/about" },
 };
 
@@ -42,7 +42,7 @@ export default async function AboutPage() {
             with Clarity
           </h1>
           <p className="text-lg text-body leading-relaxed max-w-2xl mx-auto">
-            MindfulPath was founded with a single mission: to make evidence-based mental health information accessible to everyone. No jargon. No judgment. Just clear, compassionate guidance.
+            RegulatedSelf was founded with a single mission: to make evidence-based mental health information accessible to everyone. No jargon. No judgment. Just clear, compassionate guidance.
           </p>
         </div>
       </section>
@@ -70,7 +70,7 @@ export default async function AboutPage() {
               Breaking Down Barriers to Mental Health Knowledge
             </h2>
             <p className="text-body leading-relaxed mb-4">
-              Mental health is still stigmatized in many communities. We believe that access to clear, accurate information is the first step toward healing. That's why every article on MindfulPath is:
+              Mental health is still stigmatized in many communities. We believe that access to clear, accurate information is the first step toward healing. That's why every article on RegulatedSelf is:
             </p>
             <ul className="space-y-3">
               {["Written by licensed mental health professionals", "Reviewed for medical accuracy", "Based on the latest clinical research", "Free and accessible to all readers"].map((item) => (
@@ -90,8 +90,14 @@ export default async function AboutPage() {
               <p className="text-accent text-sm font-medium mb-4">{SITE_CONFIG.author.credentials}</p>
               <p className="text-body text-sm leading-relaxed">{SITE_CONFIG.author.bio}</p>
               <div className="flex justify-center gap-3 mt-4">
-                <Link href={SITE_CONFIG.author.social?.twitter ?? "#"} className="px-4 py-2 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">Twitter</Link>
-                <Link href={SITE_CONFIG.author.social?.linkedin ?? "#"} className="px-4 py-2 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">LinkedIn</Link>
+                {/* Only rendered when a real profile URL exists — these used to
+                    link to the bare platform homepages. */}
+                {SITE_CONFIG.author.social?.twitter && (
+                  <Link href={SITE_CONFIG.author.social.twitter} className="px-4 py-2 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">Twitter</Link>
+                )}
+                {SITE_CONFIG.author.social?.linkedin && (
+                  <Link href={SITE_CONFIG.author.social.linkedin} className="px-4 py-2 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">LinkedIn</Link>
+                )}
               </div>
             </div>
           </div>
@@ -125,7 +131,7 @@ export default async function AboutPage() {
           <Award className="w-8 h-8 text-amber-600 mx-auto mb-3" />
           <h3 className="font-bold text-amber-900 dark:text-amber-400 mb-2">Important Disclaimer</h3>
           <p className="text-sm text-amber-700 dark:text-amber-500 leading-relaxed">
-            The content on MindfulPath is for educational and informational purposes only. It is not intended to be a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified mental health provider with any questions you may have.
+            The content on RegulatedSelf is for educational and informational purposes only. It is not intended to be a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified mental health provider with any questions you may have.
           </p>
         </div>
       </section>

@@ -57,10 +57,10 @@ export default function AdminSettingsPage() {
 
   // General settings (stored in localStorage)
   const [general, setGeneral] = useState({
-    siteName: "MindfulPath",
+    siteName: "RegulatedSelf",
     siteTagline: "Your Guide to Mental Wellness",
-    siteUrl: "https://mindfulpath.com",
-    supportEmail: "support@mindfulpath.com",
+    siteUrl: "https://regulatedself.com",
+    supportEmail: "support@regulatedself.com",
     timezone: "UTC",
     language: "en",
   });
@@ -87,12 +87,12 @@ export default function AdminSettingsPage() {
 
   // SEO & Meta settings (localStorage)
   const [seo, setSeo] = useState({
-    metaTitle: "MindfulPath — Mental Wellness Blog",
+    metaTitle: "RegulatedSelf — Mental Wellness Blog",
     metaDescription: "Evidence-based mental health articles to help you navigate anxiety, depression, stress, and emotional wellbeing.",
     ogImage: "",
     googleAnalyticsId: "",
-    twitterHandle: "@mindfulpath",
-    robotsTxt: "User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: https://mindfulpath.com/sitemap.xml",
+    twitterHandle: "@regulatedself",
+    robotsTxt: "User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: https://regulatedself.com/sitemap.xml",
   });
 
   // Appearance settings (localStorage)
@@ -382,9 +382,9 @@ export default function AdminSettingsPage() {
                   <textarea value={seo.metaDescription} onChange={e => setSeo(s => ({ ...s, metaDescription: e.target.value }))} rows={3} maxLength={160}
                     className="w-full px-4 py-3 bg-surface-alt border border-line text-body placeholder-faint rounded-xl text-sm outline-none focus:border-accent resize-none" />
                 </div>
-                <Input label="Open Graph Image URL" value={seo.ogImage} onChange={(v: string) => setSeo(s => ({ ...s, ogImage: v }))} placeholder="https://mindfulpath.com/og-image.jpg" />
+                <Input label="Open Graph Image URL" value={seo.ogImage} onChange={(v: string) => setSeo(s => ({ ...s, ogImage: v }))} placeholder="https://regulatedself.com/og-image.jpg" />
                 <Input label="Google Analytics ID" value={seo.googleAnalyticsId} onChange={(v: string) => setSeo(s => ({ ...s, googleAnalyticsId: v }))} placeholder="G-XXXXXXXXXX" />
-                <Input label="Twitter / X Handle" value={seo.twitterHandle} onChange={(v: string) => setSeo(s => ({ ...s, twitterHandle: v }))} placeholder="@mindfulpath" />
+                <Input label="Twitter / X Handle" value={seo.twitterHandle} onChange={(v: string) => setSeo(s => ({ ...s, twitterHandle: v }))} placeholder="@regulatedself" />
                 <div className="p-3 rounded-xl bg-surface-alt border border-line">
                   <p className="text-xs text-faint">
                     <strong className="text-body">robots.txt</strong> is managed in code

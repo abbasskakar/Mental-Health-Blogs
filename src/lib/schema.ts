@@ -22,7 +22,8 @@ export function organizationSchema() {
     url: SITE_URL,
     logo: absoluteUrl('/icon'),
     description: SITE_DESCRIPTION,
-    sameAs,
+    // Omitted rather than emitted empty: `sameAs: []` still asserts something.
+    ...(sameAs.length ? { sameAs } : {}),
   };
 }
 

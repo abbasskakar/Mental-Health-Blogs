@@ -1,6 +1,6 @@
 /**
  * Supabase Query Functions
- * Centralized data-fetching layer for MindfulPath Blog
+ * Centralized data-fetching layer for RegulatedSelf Blog
  */
 
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';

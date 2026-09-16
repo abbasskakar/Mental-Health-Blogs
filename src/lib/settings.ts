@@ -27,7 +27,7 @@ export interface ResolvedSiteSettings {
 const DEFAULTS: ResolvedSiteSettings = {
   siteName: SITE_NAME,
   siteTagline: SITE_TAGLINE,
-  supportEmail: 'hello@mindfulpath.com',
+  supportEmail: 'hello@regulatedself.com',
   metaTitle: `${SITE_NAME} — ${SITE_TAGLINE}`,
   metaDescription: SITE_DESCRIPTION,
   ogImage: '',

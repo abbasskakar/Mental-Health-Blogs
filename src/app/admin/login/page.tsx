@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent shadow-xl mb-4">
             <Brain className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-heading">MindfulPath</h1>
+          <h1 className="text-2xl font-bold text-heading">RegulatedSelf</h1>
           <p className="text-body text-sm mt-1">Admin Control Panel</p>
         </div>
 
@@ -107,7 +107,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@mindfulpath.com"
+                  placeholder="admin@regulatedself.com"
                   className="w-full pl-11 pr-4 py-3 bg-page-alt border border-line text-heading placeholder:text-faint rounded-xl text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all"
                 />
               </div>
@@ -172,7 +172,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-faint text-xs mt-6">
-          © {new Date().getFullYear()} MindfulPath · Secure Admin Panel
+          © {new Date().getFullYear()} RegulatedSelf · Secure Admin Panel
         </p>
       </motion.div>
     </div>

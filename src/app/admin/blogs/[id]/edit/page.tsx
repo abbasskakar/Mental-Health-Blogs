@@ -11,6 +11,7 @@ import { slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import EditorToolbar from "@/components/admin/EditorToolbar";
+import { SITE_URL } from "@/lib/site";
 
 interface Category { id: string; name: string; color: string; icon: string; }
 
@@ -252,7 +253,7 @@ export default function EditBlogPage() {
               <div className="p-4 rounded-xl bg-surface-alt border border-line">
                 <p className="text-xs text-faint mb-2">Google Preview</p>
                 <div className="text-blue-400 text-sm font-medium truncate">{form.meta_title || form.title || "Blog Post Title"}</div>
-                <div className="text-green-600 text-xs mt-0.5">mindfulpath.com/blog/{form.slug}</div>
+                <div className="text-green-600 text-xs mt-0.5">{SITE_URL.replace(/^https?:\/\//, "")}/blog/{form.slug}</div>
                 <div className="text-faint text-xs mt-1 line-clamp-2">{form.meta_description || form.excerpt || "Write a meta description..."}</div>
               </div>
             </div>

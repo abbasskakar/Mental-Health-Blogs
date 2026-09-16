@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${category.name} Articles`;
   const description =
     category.description ??
-    `Evidence-based ${category.name.toLowerCase()} articles and mental health guidance from MindfulPath.`;
+    `Evidence-based ${category.name.toLowerCase()} articles and mental health guidance from RegulatedSelf.`;
 
   return {
     title,

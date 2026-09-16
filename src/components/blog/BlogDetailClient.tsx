@@ -475,7 +475,7 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
               <h3 className="text-xl font-bold text-white mb-2">Enjoyed this article?</h3>
               <p className="text-white/80 text-sm mb-5">Subscribe to get more evidence-based mental health insights weekly.</p>
               {newsletterStatus === 'success' ? (
-                <p className="text-white font-semibold text-sm">🎉 You're subscribed! Welcome to MindfulPath.</p>
+                <p className="text-white font-semibold text-sm">🎉 You're subscribed! Welcome to RegulatedSelf.</p>
               ) : (
                 <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
                   <input

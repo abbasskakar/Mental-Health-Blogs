@@ -18,7 +18,7 @@ export default function AdminBackupPage() {
       const url = `/api/admin/export?type=${type}`;
       const a = document.createElement("a");
       a.href = url;
-      a.download = type === "blogs" ? "mindfulpath-blogs.json" : `mindfulpath-${type}.csv`;
+      a.download = type === "blogs" ? "regulatedself-blogs.json" : `regulatedself-${type}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

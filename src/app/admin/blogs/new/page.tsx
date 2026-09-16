@@ -11,6 +11,7 @@ import { slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import EditorToolbar from "@/components/admin/EditorToolbar";
+import { SITE_URL } from "@/lib/site";
 
 interface Category { id: string; name: string; color: string; icon: string; }
 
@@ -198,14 +199,14 @@ export default function NewBlogPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-faint uppercase tracking-wide mb-2">Canonical URL (optional)</label>
-                <input value={form.slug ? `https://mindfulpath.com/blog/${form.slug}` : ''} readOnly placeholder="https://mindfulpath.com/blog/your-slug" className="w-full px-4 py-3 bg-surface-alt border border-line text-faint rounded-xl text-sm outline-none cursor-not-allowed" />
+                <input value={form.slug ? `${SITE_URL}/blog/${form.slug}` : ''} readOnly placeholder={`${SITE_URL}/blog/your-slug`} className="w-full px-4 py-3 bg-surface-alt border border-line text-faint rounded-xl text-sm outline-none cursor-not-allowed" />
               </div>
 
               {/* Search Preview */}
               <div className="p-4 rounded-xl bg-surface-alt border border-line">
                 <p className="text-xs text-faint mb-2">Google Preview</p>
                 <div className="text-blue-400 text-sm font-medium truncate">{form.meta_title || form.title || "Blog Post Title"}</div>
-                <div className="text-green-600 text-xs mt-0.5">mindfulpath.com/blog/{form.slug || "your-blog-slug"}</div>
+                <div className="text-green-600 text-xs mt-0.5">{SITE_URL.replace(/^https?:\/\//, "")}/blog/{form.slug || "your-blog-slug"}</div>
                 <div className="text-faint text-xs mt-1 line-clamp-2">{form.meta_description || form.excerpt || "Write a meta description to see it here..."}</div>
               </div>
             </div>

@@ -8,12 +8,12 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 ).replace(/\/+$/, '');
 
-export const SITE_NAME = 'MindfulPath';
+export const SITE_NAME = 'RegulatedSelf';
 export const SITE_TAGLINE = 'Your Guide to Mental Wellness';
 export const SITE_DESCRIPTION =
   'Evidence-based mental health articles on anxiety, depression, stress, mindfulness, and emotional wellbeing. Written by licensed professionals.';
 
-export const TWITTER_HANDLE = '@mindfulpath';
+export const TWITTER_HANDLE = '@regulatedself';
 
 // Optional analytics / verification — set these in env when available.
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || '';
@@ -38,10 +38,15 @@ export const DEFAULT_OG_IMAGE = {
   height: 630,
 };
 
-/** Social profile URLs — used for Organization/Person sameAs in JSON-LD. */
-export const SOCIAL_LINKS = {
-  twitter: 'https://twitter.com/mindfulpath',
-  linkedin: 'https://linkedin.com/company/mindfulpath',
-  instagram: 'https://instagram.com/mindfulpath',
-  facebook: 'https://facebook.com/mindfulpath',
-};
+/**
+ * Social profile URLs — used for Organization `sameAs` in JSON-LD, and for the
+ * footer icons.
+ *
+ * Deliberately empty. These previously pointed at twitter.com/mindfulpath and
+ * friends, which belong to unrelated real businesses, so the site was telling
+ * Google it was the same entity as someone else. `sameAs` is the strongest
+ * entity signal there is; claiming a profile you do not own is worse for trust
+ * than claiming none. Add real handles here once the accounts exist, and both
+ * the JSON-LD and the footer pick them up automatically.
+ */
+export const SOCIAL_LINKS: Record<string, string> = {};
