@@ -2,7 +2,7 @@ import { getBlogBySlug, getRelatedBlogs, getBlogComments, getAllBlogSlugs, getAd
 import BlogDetailClient from "@/components/blog/BlogDetailClient";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { blogPostingSchema, breadcrumbSchema, faqSchema, extractFaqs, jsonLdScript } from "@/lib/schema";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 
@@ -29,8 +29,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // hard-coded URL on a domain this site does not own.
   const image = blog.featured_image ?? absoluteUrl("/opengraph-image");
 
+  // The layout appends " | RegulatedSelf". Google cuts titles at about 60
+  // characters, so when the suffix would push past that, drop the brand
+  // rather than let Google cut off the end of the title itself.
+  const seoTitle = blog.meta_title ?? blog.title;
+  const title = `${seoTitle} | ${SITE_NAME}`.length > 60 ? { absolute: seoTitle } : seoTitle;
+
   return {
-    title: blog.meta_title ?? blog.title,
+    title,
     description: blog.meta_description ?? blog.excerpt ?? "",
     keywords: blog.tags,
     authors: blog.author ? [{ name: blog.author.name }] : [],
