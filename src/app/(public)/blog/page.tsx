@@ -33,7 +33,7 @@ export const revalidate = 60;
 // initial HTML — the opposite of what this page is for.
 export default async function BlogListPage() {
   const [{ blogs }, categories] = await Promise.all([
-    getPublishedBlogs({ limit: 50, sortBy: 'newest' }),
+    getPublishedBlogs({ limit: 500, sortBy: 'newest' }),
     getCategories(),
   ]);
 

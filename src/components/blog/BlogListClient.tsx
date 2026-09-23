@@ -53,10 +53,11 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
   const [search, setSearch] = useState(initialSearch);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState("newest");
-  // Show every post the server sent (the page fetches 50). "Load more" was a
+  // Show every post the server sent (the page fetches up to 500, and cards no
+  // longer carry the article body, so that stays light). "Load more" was a
   // client-side button, so crawlers — which don't click — only ever saw the
   // first 9 posts and the rest got no link from the main listing page.
-  const [visibleCount, setVisibleCount] = useState(50);
+  const [visibleCount, setVisibleCount] = useState(500);
 
   // Legacy `/blog?category=x` and `/blog?q=x` links are sent on to their real
   // pages from here, on the client.

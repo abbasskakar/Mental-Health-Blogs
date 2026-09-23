@@ -75,7 +75,7 @@ export default async function CategoryPage({ params }: Props) {
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();
 
-  const { blogs } = await getPublishedBlogs({ limit: 50, categorySlug: slug, sortBy: "newest" });
+  const { blogs } = await getPublishedBlogs({ limit: 500, categorySlug: slug, sortBy: "newest" });
   const adapted = blogs.map(adaptBlog);
 
   const breadcrumb = breadcrumbSchema([

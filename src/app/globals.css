@@ -157,6 +157,8 @@
     color: var(--text-muted);
   }
   .prose img { border-radius: 0.75rem; max-width: 100%; height: auto; }
+  .prose figure { margin: 2rem 0; }
+  .prose figure img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
   .prose hr {
     border: 0;
     border-top: 1px solid var(--border);

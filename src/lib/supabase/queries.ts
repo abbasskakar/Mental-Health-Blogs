@@ -22,6 +22,20 @@ function createStaticClient() {
 // private email column never reaches a page (see sql/authors_hide_email.sql).
 const AUTHOR_COLUMNS = 'id, name, bio, avatar_url, credentials, twitter_url, linkedin_url';
 
+// Every blog column a card needs — i.e. all but the article body. Listings
+// used to select *, which shipped each post's full HTML to the browser just to
+// render a title and an excerpt (~20 KB per card).
+const CARD_COLUMNS =
+  'id, title, slug, excerpt, featured_image, category_id, author_id, tags, reading_time, ' +
+  'views_count, likes_count, is_featured, status, meta_title, meta_description, canonical_url, ' +
+  'published_at, scheduled_at, created_at, updated_at';
+const CARD_SELECT = `${CARD_COLUMNS}, category:categories(*), author:authors(${AUTHOR_COLUMNS})`;
+
+/** Card rows carry no body; `content` is blanked so they still fit BlogWithRelations. */
+function asCards(rows: unknown[] | null): BlogWithRelations[] {
+  return (rows ?? []).map((r) => ({ content: '', schema_markup: null, ...(r as object) })) as BlogWithRelations[];
+}
+
 // ─── BLOGS ────────────────────────────────────────────────────────────────────
 
 export async function getPublishedBlogs(options?: {
@@ -42,14 +56,7 @@ export async function getPublishedBlogs(options?: {
 
   let query = supabase
     .from('blogs')
-    .select(
-      `
-      *,
-      category:categories(*),
-      author:authors(${AUTHOR_COLUMNS})
-    `,
-      { count: 'exact' }
-    )
+    .select(CARD_SELECT, { count: 'exact' })
     .eq('status', 'published');
 
   if (categorySlug && categorySlug !== 'all') {
@@ -92,14 +99,14 @@ export async function getPublishedBlogs(options?: {
     return { blogs: [], count: 0 };
   }
   // `count` is the TOTAL matching rows (ignores range), needed for pagination
-  return { blogs: (data ?? []) as BlogWithRelations[], count: count ?? 0 };
+  return { blogs: asCards(data), count: count ?? 0 };
 }
 
 export async function getFeaturedBlogs(limit = 3) {
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
+    .select(CARD_SELECT)
     .eq('status', 'published')
     .eq('is_featured', true)
     .order('published_at', { ascending: false })
@@ -109,7 +116,7 @@ export async function getFeaturedBlogs(limit = 3) {
     console.error('getFeaturedBlogs error:', error);
     return [];
   }
-  return (data ?? []) as BlogWithRelations[];
+  return asCards(data);
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogWithRelations | null> {
@@ -132,7 +139,7 @@ export async function getRelatedBlogs(categoryId: string, excludeId: string, lim
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
+    .select(CARD_SELECT)
     .eq('status', 'published')
     .eq('category_id', categoryId)
     .neq('id', excludeId)
@@ -143,7 +150,7 @@ export async function getRelatedBlogs(categoryId: string, excludeId: string, lim
     console.error('getRelatedBlogs error:', error);
     return [];
   }
-  return (data ?? []) as BlogWithRelations[];
+  return asCards(data);
 }
 
 /**
@@ -218,7 +225,7 @@ export async function getBlogsByTag(tag: string): Promise<BlogWithRelations[]> {
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
+    .select(CARD_SELECT)
     .eq('status', 'published')
     .contains('tags', [tag])
     .order('published_at', { ascending: false });
@@ -227,7 +234,7 @@ export async function getBlogsByTag(tag: string): Promise<BlogWithRelations[]> {
     console.error('getBlogsByTag error:', error);
     return [];
   }
-  return (data ?? []) as BlogWithRelations[];
+  return asCards(data);
 }
 
 /**
