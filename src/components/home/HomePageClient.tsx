@@ -55,7 +55,6 @@ function adaptBlog(blog: BlogWithRelations) {
 export default function HomePageClient({ featuredBlogs, initialBlogs, categories, stats, faqs }: HomePageClientProps) {
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [visibleCount, setVisibleCount] = useState(6);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [nlStatus, setNlStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -273,7 +272,7 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
             <>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 <AnimatePresence>
-                  {filtered.slice(0, visibleCount).map((blog, i) => (
+                  {filtered.map((blog, i) => (
                     <motion.div
                       key={blog.id}
                       initial={{ opacity: 0, y: 12 }}
@@ -286,17 +285,17 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
                 </AnimatePresence>
               </div>
 
-              {visibleCount < filtered.length && (
-                <div className="text-center mt-10">
-                  <button
-                    onClick={() => setVisibleCount((c) => c + 6)}
-                    className="px-6 py-2.5 rounded-lg border text-sm font-medium transition-all duration-150 hover:border-[var(--accent)] hover:text-[var(--accent)]"
-                    style={{ color: "var(--text-muted)", borderColor: "var(--border)" }}
-                  >
-                    Load more articles
-                  </button>
-                </div>
-              )}
+              {/* The server sends only the latest 6, so "load more" had nothing
+                  to load — send readers to the full archive instead. */}
+              <div className="text-center mt-10">
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border text-sm font-medium transition-all duration-150 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                  style={{ color: "var(--text-muted)", borderColor: "var(--border)" }}
+                >
+                  View all articles <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
+                </Link>
+              </div>
             </>
           )}
         </div>

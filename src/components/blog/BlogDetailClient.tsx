@@ -125,22 +125,47 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Likes the browser remembers, so the button can toggle and survives a reload.
+  useEffect(() => {
+    try {
+      const likedIds: string[] = JSON.parse(localStorage.getItem("rs_likes") ?? "[]");
+      setLiked(likedIds.includes(blog.id));
+    } catch {}
+  }, [blog.id]);
+
+  const likeBusy = useRef(false);
+
   const handleLike = async () => {
-    if (liked) return;
+    if (likeBusy.current) return;
+    likeBusy.current = true;
+    const unlike = liked;
+    const delta = unlike ? -1 : 1;
+    const remember = (isLiked: boolean) => {
+      try {
+        const likedIds: string[] = JSON.parse(localStorage.getItem("rs_likes") ?? "[]");
+        const next = likedIds.filter((id) => id !== blog.id);
+        if (isLiked) next.push(blog.id);
+        localStorage.setItem("rs_likes", JSON.stringify(next));
+      } catch {}
+    };
     // Optimistic update
-    setLiked(true);
-    setLikesCount(c => c + 1);
+    setLiked(!unlike);
+    setLikesCount(c => Math.max(0, c + delta));
+    remember(!unlike);
     try {
       const res = await fetch('/api/blogs/like', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blog_id: blog.id }),
+        body: JSON.stringify({ blog_id: blog.id, unlike }),
       });
       if (!res.ok) throw new Error('like failed');
     } catch {
       // Revert on failure (network error OR non-2xx response)
-      setLiked(false);
-      setLikesCount(c => c - 1);
+      setLiked(unlike);
+      setLikesCount(c => Math.max(0, c - delta));
+      remember(unlike);
+    } finally {
+      likeBusy.current = false;
     }
   };
 
@@ -279,11 +304,12 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleLike}
-                  disabled={liked}
+                  aria-pressed={liked}
+                  aria-label={liked ? "Unlike this article" : "Like this article"}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all",
                     liked
-                      ? "bg-red-100 dark:bg-red-500/20 text-red-500 cursor-default"
+                      ? "bg-red-100 dark:bg-red-500/20 text-red-500 hover:bg-red-200 dark:hover:bg-red-500/30"
                       : "bg-surface text-body hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 border border-line"
                   )}
                 >

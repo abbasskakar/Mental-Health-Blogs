@@ -379,3 +379,27 @@ export async function likeBlog(blogId: string): Promise<boolean> {
   if (updateError) throw updateError;
   return true;
 }
+
+/** Mirror of likeBlog. Never takes the count below zero. */
+export async function unlikeBlog(blogId: string): Promise<boolean> {
+  const admin = createAdminSupabaseClient();
+
+  const { data, error } = await admin
+    .from('blogs')
+    .select('likes_count')
+    .eq('id', blogId)
+    .single();
+  if (error || !data) return false;
+
+  // Atomic path
+  const { error: rpcError } = await admin.rpc('decrement_likes', { p_blog_id: blogId });
+  if (!rpcError) return true;
+
+  // Fallback: non-atomic read-modify-write (used until the SQL function exists)
+  const { error: updateError } = await admin
+    .from('blogs')
+    .update({ likes_count: Math.max(0, (data.likes_count ?? 0) - 1) })
+    .eq('id', blogId);
+  if (updateError) throw updateError;
+  return true;
+}

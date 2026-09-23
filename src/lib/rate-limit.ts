@@ -52,6 +52,11 @@ export function isLimited(key: string, limit: number): boolean {
   return !!b && b.resetAt > Date.now() && b.count >= limit;
 }
 
+/** Drops a bucket, e.g. to let someone like again after they unliked. */
+export function release(key: string): void {
+  buckets.delete(key);
+}
+
 /** Extracts the client IP from a Next.js Request's headers (best effort). */
 export function clientIp(request: Request): string {
   const h = request.headers;
