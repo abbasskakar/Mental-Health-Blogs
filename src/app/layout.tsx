@@ -46,7 +46,6 @@ export async function generateMetadata(): Promise<Metadata> {
       "self-care",
       "emotional health",
     ],
-    authors: [{ name: "Dr. Sarah Mitchell" }],
     creator: s.siteName,
     publisher: s.siteName,
     alternates: {

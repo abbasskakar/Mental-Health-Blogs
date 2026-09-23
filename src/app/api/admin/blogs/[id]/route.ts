@@ -52,7 +52,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       status,
       meta_title,
       meta_description,
+      author_id,
     } = body;
+
+    if (author_id) {
+      const { data: author } = await admin.from('authors').select('id').eq('id', author_id).maybeSingle();
+      if (!author) {
+        return NextResponse.json({ error: 'Selected author no longer exists' }, { status: 400 });
+      }
+    }
 
     // If slug changed, check uniqueness
     if (rawSlug) {
@@ -96,6 +104,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
     if (meta_title !== undefined) updates.meta_title = meta_title?.trim() ?? null;
     if (meta_description !== undefined) updates.meta_description = meta_description?.trim() ?? null;
+    if (author_id !== undefined) updates.author_id = author_id || null;
 
     const { data: blog, error } = await admin.from('blogs').update(updates).eq('id', id).select().single();
 

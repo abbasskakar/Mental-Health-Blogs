@@ -9,8 +9,8 @@ import {
   MessageSquare, List, AlertTriangle,
 } from "lucide-react";
 import BlogCard from "@/components/blog/BlogCard";
-import { SITE_CONFIG } from "@/lib/data";
-import { formatDate, formatNumber } from "@/lib/utils";
+import AuthorAvatar from "@/components/blog/AuthorAvatar";
+import { formatDate, formatNumber, slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { CommentRow } from "@/types/database";
 
@@ -35,7 +35,14 @@ interface BlogDetailClientProps {
     featured_image: string;
     category: { id: string; name: string; slug: string; color: string };
     tags: string[];
-    author: { name: string; avatar: string; bio?: string; credentials?: string };
+    author: {
+      name: string;
+      avatar: string;
+      bio?: string;
+      credentials?: string;
+      twitter_url?: string | null;
+      linkedin_url?: string | null;
+    };
     reading_time: number;
     views_count: number;
     likes_count: number;
@@ -69,6 +76,7 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
   const [commentText, setCommentText] = useState("");
   const [commentStatus, setCommentStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [commentError, setCommentError] = useState("");
+  const authorHref = `/about#${slugify(blog.author.name)}`;
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(blog.likes_count);
   const [bookmarked, setBookmarked] = useState(false);
@@ -264,10 +272,10 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
               {blog.title}
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-4 text-white/70 text-sm">
-              <span className="flex items-center gap-1.5">
-                <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center text-xs text-white font-bold">{blog.author.name.charAt(0)}</div>
+              <Link href={authorHref} className="flex items-center gap-1.5 hover:text-white transition-colors">
+                <AuthorAvatar name={blog.author.name} src={blog.author.avatar} className="w-6 h-6 rounded-full text-xs" />
                 {blog.author.name}
-              </span>
+              </Link>
               <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {formatDate(blog.published_at)}</span>
               <span className="flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5" /> Updated {formatDate(blog.updated_at)}</span>
               <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {blog.reading_time} min read</span>
@@ -358,13 +366,29 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
             <div className="mt-10 p-6 rounded-2xl bg-accent-subtle border border-line">
               <h3 className="text-sm font-semibold text-faint uppercase tracking-wide mb-4 text-center sm:text-left">About the Author</h3>
               <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-2xl text-white font-bold flex-shrink-0">
-                  {blog.author.name.charAt(0)}
-                </div>
-                <div>
-                  <h4 className="font-bold text-heading">{blog.author.name}</h4>
-                  <p className="text-xs text-accent font-medium mb-2">{blog.author.credentials || SITE_CONFIG.author.credentials}</p>
-                  <p className="text-sm text-body leading-relaxed">{blog.author.bio || SITE_CONFIG.author.bio}</p>
+                <Link href={authorHref} className="flex-shrink-0" tabIndex={-1} aria-hidden="true">
+                  <AuthorAvatar name={blog.author.name} src={blog.author.avatar} className="w-16 h-16 rounded-2xl text-2xl" />
+                </Link>
+                <div className="min-w-0">
+                  <h4 className="font-bold text-heading">
+                    <Link href={authorHref} className="hover:text-accent transition-colors">{blog.author.name}</Link>
+                  </h4>
+                  {blog.author.credentials && (
+                    <p className="text-xs text-accent font-medium mb-2">{blog.author.credentials}</p>
+                  )}
+                  {blog.author.bio && <p className="text-sm text-body leading-relaxed">{blog.author.bio}</p>}
+                  {(blog.author.linkedin_url || blog.author.twitter_url) && (
+                    <div className="flex justify-center sm:justify-start gap-2 mt-3">
+                      {blog.author.linkedin_url && (
+                        <a href={blog.author.linkedin_url} target="_blank" rel="noopener noreferrer" aria-label={`${blog.author.name} on LinkedIn`}
+                          className="p-2 rounded-lg bg-surface text-body hover:text-accent transition-colors"><LinkedInIcon /></a>
+                      )}
+                      {blog.author.twitter_url && (
+                        <a href={blog.author.twitter_url} target="_blank" rel="noopener noreferrer" aria-label={`${blog.author.name} on X`}
+                          className="p-2 rounded-lg bg-surface text-body hover:text-accent transition-colors"><TwitterIcon /></a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

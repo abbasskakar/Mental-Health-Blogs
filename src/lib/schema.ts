@@ -10,6 +10,7 @@ import {
   SOCIAL_LINKS,
   absoluteUrl,
 } from '@/lib/site';
+import { slugify } from '@/lib/utils';
 
 const sameAs = Object.values(SOCIAL_LINKS);
 
@@ -57,20 +58,40 @@ interface BlogPostingInput {
   updatedAt: string;
   tags?: string[];
   categoryName?: string;
-  author?: {
-    name: string;
-    bio?: string;
-    credentials?: string;
-    twitterUrl?: string | null;
-    linkedinUrl?: string | null;
-  } | null;
+  author?: AuthorSchemaInput | null;
+}
+
+export interface AuthorSchemaInput {
+  name: string;
+  bio?: string;
+  credentials?: string;
+  avatarUrl?: string | null;
+  twitterUrl?: string | null;
+  linkedinUrl?: string | null;
+}
+
+/** Each author's profile lives on /about, at an anchor made from their name. */
+export function authorProfileUrl(name: string) {
+  return absoluteUrl(`/about#${slugify(name)}`);
+}
+
+/** schema.org Person for an author — used in posts and on the About page. */
+export function personSchema(a: AuthorSchemaInput) {
+  const sameAs = [a.twitterUrl, a.linkedinUrl].filter(Boolean) as string[];
+  const url = authorProfileUrl(a.name);
+  return {
+    '@type': 'Person',
+    '@id': url,
+    name: a.name,
+    url,
+    description: a.bio || undefined,
+    jobTitle: a.credentials || undefined,
+    image: a.avatarUrl || undefined,
+    ...(sameAs.length ? { sameAs } : {}),
+  };
 }
 
 export function blogPostingSchema(b: BlogPostingInput) {
-  const authorSameAs = [b.author?.twitterUrl, b.author?.linkedinUrl].filter(
-    Boolean
-  ) as string[];
-
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -83,13 +104,7 @@ export function blogPostingSchema(b: BlogPostingInput) {
     keywords: b.tags && b.tags.length ? b.tags.join(', ') : undefined,
     articleSection: b.categoryName,
     author: b.author
-      ? {
-          '@type': 'Person',
-          name: b.author.name,
-          description: b.author.bio || undefined,
-          jobTitle: b.author.credentials || undefined,
-          ...(authorSameAs.length ? { sameAs: authorSameAs } : {}),
-        }
+      ? personSchema(b.author)
       : { '@type': 'Organization', name: SITE_NAME },
     publisher: {
       '@type': 'Organization',

@@ -5,7 +5,7 @@
 
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { createClient } from '@supabase/supabase-js';
-import type { BlogWithRelations, CategoryRow, CommentRow } from '@/types/database';
+import type { BlogWithRelations, CategoryRow, CommentRow, PublicAuthor } from '@/types/database';
 
 /**
  * Creates a simple Supabase client WITHOUT cookies - safe for use in
@@ -17,6 +17,10 @@ function createStaticClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 }
+
+// Everything public pages show about an author. Listed explicitly so the
+// private email column never reaches a page (see sql/authors_hide_email.sql).
+const AUTHOR_COLUMNS = 'id, name, bio, avatar_url, credentials, twitter_url, linkedin_url';
 
 // ─── BLOGS ────────────────────────────────────────────────────────────────────
 
@@ -42,7 +46,7 @@ export async function getPublishedBlogs(options?: {
       `
       *,
       category:categories(*),
-      author:authors(*)
+      author:authors(${AUTHOR_COLUMNS})
     `,
       { count: 'exact' }
     )
@@ -95,7 +99,7 @@ export async function getFeaturedBlogs(limit = 3) {
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(*)`)
+    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
     .eq('status', 'published')
     .eq('is_featured', true)
     .order('published_at', { ascending: false })
@@ -112,7 +116,7 @@ export async function getBlogBySlug(slug: string): Promise<BlogWithRelations | n
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(*)`)
+    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
     .eq('slug', slug)
     .eq('status', 'published')
     .single();
@@ -128,7 +132,7 @@ export async function getRelatedBlogs(categoryId: string, excludeId: string, lim
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(*)`)
+    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
     .eq('status', 'published')
     .eq('category_id', categoryId)
     .neq('id', excludeId)
@@ -214,7 +218,7 @@ export async function getBlogsByTag(tag: string): Promise<BlogWithRelations[]> {
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
-    .select(`*, category:categories(*), author:authors(*)`)
+    .select(`*, category:categories(*), author:authors(${AUTHOR_COLUMNS})`)
     .eq('status', 'published')
     .contains('tags', [tag])
     .order('published_at', { ascending: false });
@@ -241,6 +245,35 @@ export async function getSiteStats() {
     topics: categoriesRes.count ?? 0,
     authors: authorsRes.count ?? 0,
   };
+}
+
+// ─── AUTHORS ──────────────────────────────────────────────────────────────────
+
+export type AuthorWithCount = PublicAuthor & { post_count: number };
+
+/**
+ * getAuthors — every author, oldest first, with their published post count.
+ */
+export async function getAuthors(): Promise<AuthorWithCount[]> {
+  const supabase = createStaticClient();
+  const [authorsRes, blogsRes] = await Promise.all([
+    supabase.from('authors').select(AUTHOR_COLUMNS).order('created_at', { ascending: true }),
+    supabase.from('blogs').select('author_id').eq('status', 'published'),
+  ]);
+
+  if (authorsRes.error) {
+    console.error('getAuthors error:', authorsRes.error);
+    return [];
+  }
+
+  const counts = new Map<string, number>();
+  for (const b of (blogsRes.data ?? []) as { author_id: string | null }[]) {
+    if (b.author_id) counts.set(b.author_id, (counts.get(b.author_id) ?? 0) + 1);
+  }
+  return ((authorsRes.data ?? []) as PublicAuthor[]).map((a) => ({
+    ...a,
+    post_count: counts.get(a.id) ?? 0,
+  }));
 }
 
 // ─── CATEGORIES ───────────────────────────────────────────────────────────────

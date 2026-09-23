@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { Award, Heart, BookOpen, Shield, Users, ArrowRight, CheckCircle } from "lucide-react";
-import { SITE_CONFIG } from "@/lib/data";
-import { getSiteStats } from "@/lib/supabase/queries";
+import { Award, Heart, BookOpen, Shield, Users, ArrowRight, CheckCircle, FileText } from "lucide-react";
+import { getSiteStats, getAuthors } from "@/lib/supabase/queries";
+import AuthorAvatar from "@/components/blog/AuthorAvatar";
+import { slugify } from "@/lib/utils";
+import { jsonLdScript, personSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -21,15 +22,32 @@ const values = [
 export const revalidate = 60;
 
 export default async function AboutPage() {
-  const siteStats = await getSiteStats();
+  const [siteStats, authors] = await Promise.all([getSiteStats(), getAuthors()]);
   const stats = [
     { label: "Articles Published", value: `${siteStats.articles}` },
     { label: "Topics Covered", value: `${siteStats.topics}` },
     { label: "Expert Authors", value: `${siteStats.authors}` },
     { label: "Evidence-Based", value: "100%" },
   ];
+  const authorsSchema = {
+    "@context": "https://schema.org",
+    "@graph": authors.map((a) =>
+      personSchema({
+        name: a.name,
+        bio: a.bio ?? undefined,
+        credentials: a.credentials ?? undefined,
+        avatarUrl: a.avatar_url,
+        twitterUrl: a.twitter_url,
+        linkedinUrl: a.linkedin_url,
+      })
+    ),
+  };
+
   return (
     <div>
+      {authors.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(authorsSchema)} />
+      )}
       {/* Hero */}
       <section className="relative pt-6 sm:pt-20 pb-20 border-b border-line overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
@@ -70,10 +88,13 @@ export default async function AboutPage() {
               Breaking Down Barriers to Mental Health Knowledge
             </h2>
             <p className="text-body leading-relaxed mb-4">
-              Mental health is still stigmatized in many communities. We believe that access to clear, accurate information is the first step toward healing. That's why every article on RegulatedSelf is:
+              Mental health is still stigmatized in many communities. We believe that access to clear, accurate information is the first step toward healing. That&apos;s why we hold every article on RegulatedSelf to the same standard.
             </p>
-            <ul className="space-y-3">
-              {["Written by licensed mental health professionals", "Reviewed for medical accuracy", "Based on the latest clinical research", "Free and accessible to all readers"].map((item) => (
+          </div>
+          <div className="card p-8">
+            <h3 className="font-bold text-heading mb-5">Every article is:</h3>
+            <ul className="space-y-4">
+              {["Written by mental health professionals", "Reviewed for medical accuracy", "Based on the latest clinical research", "Free and accessible to all readers"].map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                   <span className="text-body text-sm">{item}</span>
@@ -81,28 +102,45 @@ export default async function AboutPage() {
               ))}
             </ul>
           </div>
-          <div className="relative">
-            <div className="relative card p-8 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-accent flex items-center justify-center text-3xl text-white font-bold mx-auto mb-4">
-                {SITE_CONFIG.author.name.charAt(0)}
-              </div>
-              <h3 className="text-xl font-bold text-heading">{SITE_CONFIG.author.name}</h3>
-              <p className="text-accent text-sm font-medium mb-4">{SITE_CONFIG.author.credentials}</p>
-              <p className="text-body text-sm leading-relaxed">{SITE_CONFIG.author.bio}</p>
-              <div className="flex justify-center gap-3 mt-4">
-                {/* Only rendered when a real profile URL exists — these used to
-                    link to the bare platform homepages. */}
-                {SITE_CONFIG.author.social?.twitter && (
-                  <Link href={SITE_CONFIG.author.social.twitter} className="px-4 py-2 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">Twitter</Link>
-                )}
-                {SITE_CONFIG.author.social?.linkedin && (
-                  <Link href={SITE_CONFIG.author.social.linkedin} className="px-4 py-2 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">LinkedIn</Link>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </section>
+
+      {/* Authors */}
+      {authors.length > 0 && (
+        <section id="authors" className="pb-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
+          <div className="text-center mb-10">
+            <span className="text-sm font-semibold text-accent uppercase tracking-wide">The People Behind the Articles</span>
+            <h2 className="text-3xl font-bold text-heading mt-2">Meet Our Authors</h2>
+          </div>
+          <div className={authors.length === 1 ? "max-w-md mx-auto" : "grid md:grid-cols-2 gap-6 max-w-4xl mx-auto"}>
+            {authors.map((a) => (
+              <article
+                key={a.id}
+                id={slugify(a.name)}
+                className="card p-8 text-center flex flex-col items-center scroll-mt-24 transition-shadow target:ring-2 target:ring-accent"
+              >
+                <AuthorAvatar name={a.name} src={a.avatar_url} className="w-20 h-20 rounded-2xl text-3xl mb-4" />
+                <h3 className="text-xl font-bold text-heading">{a.name}</h3>
+                {a.credentials && <p className="text-accent text-sm font-medium mt-1">{a.credentials}</p>}
+                {a.bio && <p className="text-body text-sm leading-relaxed mt-4">{a.bio}</p>}
+                <div className="flex flex-wrap justify-center items-center gap-2 mt-auto pt-5">
+                  {a.post_count > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-alt text-faint text-xs font-medium">
+                      <FileText className="w-3.5 h-3.5" /> {a.post_count} {a.post_count === 1 ? "article" : "articles"}
+                    </span>
+                  )}
+                  {a.linkedin_url && (
+                    <a href={a.linkedin_url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">LinkedIn</a>
+                  )}
+                  {a.twitter_url && (
+                    <a href={a.twitter_url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-xl bg-surface-alt text-body text-xs font-medium hover:bg-accent-subtle hover:text-accent transition-colors">X / Twitter</a>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Values */}
       <section className="py-16 bg-surface-alt border-y border-line">

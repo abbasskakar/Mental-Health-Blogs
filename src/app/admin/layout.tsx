@@ -8,7 +8,7 @@ import {
   Brain, LayoutDashboard, FileText, FolderOpen, Image, BarChart3,
   MessageSquare, Mail, Phone, Settings, Shield, Database,
   Menu, X, ChevronRight, ChevronLeft, Bell, LogOut, Sun, Moon,
-  TrendingUp, Search, Globe, CheckCircle,
+  TrendingUp, Search, Globe, CheckCircle, Users,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,7 @@ const buildNavGroups = (badges: Badges) => [
     items: [
       { label: "Blog Manager", href: "/admin/blogs", icon: FileText, badge: badges.draftBlogs > 0 ? `${badges.draftBlogs} drafts` : undefined },
       { label: "Categories", href: "/admin/categories", icon: FolderOpen },
+      { label: "Authors", href: "/admin/authors", icon: Users },
       { label: "Media Library", href: "/admin/media", icon: Image },
     ],
   },

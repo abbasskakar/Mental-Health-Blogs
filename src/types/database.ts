@@ -346,8 +346,11 @@ export type CommentRow = Database['public']['Tables']['comments']['Row'];
 export type SubscriberRow = Database['public']['Tables']['newsletter_subscribers']['Row'];
 export type ContactRow = Database['public']['Tables']['contact_messages']['Row'];
 
+// What the public site may know about an author — never the email.
+export type PublicAuthor = Omit<AuthorRow, 'email' | 'created_at'>;
+
 // Blog with relations
 export type BlogWithRelations = BlogRow & {
   category: CategoryRow | null;
-  author: AuthorRow | null;
+  author: PublicAuthor | null;
 };

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Clock, Eye, ArrowRight } from "lucide-react";
 import { cn, formatDateShort, formatNumber } from "@/lib/utils";
 import type { Blog } from "@/types";
+import AuthorAvatar from "@/components/blog/AuthorAvatar";
 
 interface BlogCardProps {
   blog: Blog;
@@ -114,12 +115,11 @@ export default function BlogCard({ blog, variant = "default", index = 0 }: BlogC
         >
           {/* Author */}
           <div className="flex items-center gap-2">
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-semibold"
-              style={{ background: "var(--accent)" }}
-            >
-              {blog.author.name.charAt(0)}
-            </div>
+            <AuthorAvatar
+              name={blog.author.name}
+              src={blog.author.avatar}
+              className="w-6 h-6 rounded-full text-xs font-semibold"
+            />
             <span className="text-xs" style={{ color: "var(--text-muted)" }}>
               {blog.author.name.split(" ").slice(-1)[0]}
             </span>

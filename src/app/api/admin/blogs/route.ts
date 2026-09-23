@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
       status,
       meta_title,
       meta_description,
+      author_id,
     } = body;
 
     if (!title || !title.trim()) {
@@ -81,8 +82,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'A blog with this slug already exists' }, { status: 409 });
     }
 
-    // Find author by user email
-    const { data: author } = await admin.from('authors').select('id').eq('email', user.email ?? '').single();
+    // The author picked in the editor; otherwise the author whose email
+    // matches the logged-in admin.
+    const { data: author } = author_id
+      ? await admin.from('authors').select('id').eq('id', author_id).maybeSingle()
+      : await admin.from('authors').select('id').eq('email', user.email ?? '').maybeSingle();
+    if (author_id && !author) {
+      return NextResponse.json({ error: 'Selected author no longer exists' }, { status: 400 });
+    }
 
     const wordCount = content?.trim().split(/\s+/).length ?? 0;
     const reading_time = Math.max(1, Math.ceil(wordCount / 200));

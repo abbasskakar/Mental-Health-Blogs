@@ -11,6 +11,7 @@ import { slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import EditorToolbar from "@/components/admin/EditorToolbar";
+import AuthorPicker from "@/components/admin/AuthorPicker";
 import { SITE_URL } from "@/lib/site";
 
 interface Category { id: string; name: string; color: string; icon: string; }
@@ -37,6 +38,7 @@ export default function EditBlogPage() {
     excerpt: "",
     content: "",
     category_id: "",
+    author_id: "",
     tags: [] as string[],
     featured_image: "",
     is_featured: false,
@@ -58,6 +60,7 @@ export default function EditBlogPage() {
             excerpt: b.excerpt ?? "",
             content: b.content ?? "",
             category_id: b.category_id ?? "",
+            author_id: b.author_id ?? "",
             tags: b.tags ?? [],
             featured_image: b.featured_image ?? "",
             is_featured: b.is_featured ?? false,
@@ -301,6 +304,9 @@ export default function EditBlogPage() {
               </div>
             </div>
           </div>
+
+          {/* Author */}
+          <AuthorPicker value={form.author_id} onChange={(author_id) => setForm((f) => ({ ...f, author_id }))} />
 
           {/* Category */}
           <div className="bg-surface border border-line rounded-2xl p-5">

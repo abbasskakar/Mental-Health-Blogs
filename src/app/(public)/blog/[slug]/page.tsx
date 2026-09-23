@@ -155,6 +155,7 @@ export default async function BlogDetailPage({ params }: Props) {
                 name: blog.author.name,
                 bio: blog.author.bio ?? undefined,
                 credentials: blog.author.credentials ?? undefined,
+                avatarUrl: blog.author.avatar_url,
                 twitterUrl: blog.author.twitter_url,
                 linkedinUrl: blog.author.linkedin_url,
               }
