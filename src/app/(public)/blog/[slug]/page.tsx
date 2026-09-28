@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Falls back to the generated site card (src/app/opengraph-image.tsx), not a
   // hard-coded URL on a domain this site does not own.
+  const canonical = blog.canonical_url ?? `/blog/${slug}`;
   const image = blog.featured_image ?? absoluteUrl("/opengraph-image");
 
   // The layout appends " | RegulatedSelf". Google cuts titles at about 60
@@ -41,9 +42,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: blog.tags,
     authors: blog.author ? [{ name: blog.author.name }] : [],
     alternates: {
-      canonical: blog.canonical_url ?? `/blog/${slug}`,
+      canonical,
     },
     openGraph: {
+      url: canonical,
       title: blog.meta_title ?? blog.title,
       description: blog.meta_description ?? blog.excerpt ?? "",
       images: [{ url: image, width: 1200, height: 630, alt: blog.title }],
