@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/lib/data";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How RegulatedSelf collects, uses, and protects your personal information.",
+  description:
+    "How RegulatedSelf collects, uses, and protects your personal information, including comments, newsletter sign-ups and site analytics.",
   alternates: { canonical: "/privacy-policy" },
+  openGraph: { title: "Privacy Policy", type: "website", url: "/privacy-policy", images: [DEFAULT_OG_IMAGE] },
 };
 
 export default function PrivacyPolicyPage() {

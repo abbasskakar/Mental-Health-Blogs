@@ -25,9 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!category) return { title: "Category Not Found" };
 
   const title = `${category.name} Articles`;
-  const description =
-    category.description ??
-    `Evidence-based ${category.name.toLowerCase()} articles and mental health guidance from RegulatedSelf.`;
+  // category.description is a one-liner (~65 chars) — too short for a search
+  // snippet, so Google would write its own. Extend it for the meta tag only.
+  const topic = category.name.toLowerCase();
+  const description = category.description
+    ? `${category.description} Browse every RegulatedSelf article on ${topic}, with practical steps to try today.`
+    : `Evidence-based ${topic} articles and mental health guidance from RegulatedSelf.`;
 
   return {
     title,
@@ -119,7 +122,7 @@ export default async function CategoryPage({ params }: Props) {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {adapted.map((blog, i) => (
-              <BlogCard key={blog.id} blog={blog as never} index={i} />
+              <BlogCard key={blog.id} blog={blog as never} preload={i < 3} />
             ))}
           </div>
         )}

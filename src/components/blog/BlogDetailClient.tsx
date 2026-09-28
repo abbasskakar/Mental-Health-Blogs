@@ -248,7 +248,7 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
           alt={blog.title}
           fill
           className="object-cover"
-          priority
+          preload
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
@@ -626,8 +626,8 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
           <div className="mt-16">
             <h2 className="text-2xl font-bold text-heading mb-6">You Might Also Like</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedBlogs.map((b, i) => (
-                <BlogCard key={b.id} blog={b as any} index={i} />
+              {relatedBlogs.map((b) => (
+                <BlogCard key={b.id} blog={b as any} />
               ))}
             </div>
           </div>

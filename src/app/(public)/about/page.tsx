@@ -5,11 +5,13 @@ import { getSiteStats, getAuthors } from "@/lib/supabase/queries";
 import AuthorAvatar from "@/components/blog/AuthorAvatar";
 import { slugify } from "@/lib/utils";
 import { jsonLdScript, personSchema } from "@/lib/schema";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About Us",
   description: "Learn about RegulatedSelf — our mission to provide evidence-based mental health guidance written by licensed professionals.",
   alternates: { canonical: "/about" },
+  openGraph: { title: "About RegulatedSelf", type: "website", url: "/about", images: [DEFAULT_OG_IMAGE] },
 };
 
 const values = [

@@ -273,8 +273,8 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
         ) : (
           <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.slice(0, visibleCount).map((blog) => (
-                <BlogCard key={blog.id} blog={blog as any} />
+              {filtered.slice(0, visibleCount).map((blog, i) => (
+                <BlogCard key={blog.id} blog={blog as any} preload={i < 3} />
               ))}
             </div>
 

@@ -21,7 +21,8 @@ export function organizationSchema() {
     '@id': `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
-    logo: absoluteUrl('/icon'),
+    // Google requires a logo of at least 112x112; /icon is the 32px favicon.
+    logo: { '@type': 'ImageObject', url: absoluteUrl('/apple-icon'), width: 180, height: 180 },
     description: SITE_DESCRIPTION,
     // Omitted rather than emitted empty: `sameAs: []` still asserts something.
     ...(sameAs.length ? { sameAs } : {}),
@@ -108,8 +109,9 @@ export function blogPostingSchema(b: BlogPostingInput) {
       : { '@type': 'Organization', name: SITE_NAME },
     publisher: {
       '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
       name: SITE_NAME,
-      logo: { '@type': 'ImageObject', url: absoluteUrl('/icon') },
+      logo: { '@type': 'ImageObject', url: absoluteUrl('/apple-icon'), width: 180, height: 180 },
     },
   };
 }

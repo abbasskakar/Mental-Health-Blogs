@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/lib/data";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Disclaimer",
-  description: "Medical and general disclaimer for content published on RegulatedSelf.",
+  description:
+    "RegulatedSelf articles are for education, not diagnosis or treatment. Read our medical disclaimer and where to find urgent mental health help.",
   alternates: { canonical: "/disclaimer" },
+  openGraph: { title: "Disclaimer", type: "website", url: "/disclaimer", images: [DEFAULT_OG_IMAGE] },
 };
 
 export default function DisclaimerPage() {

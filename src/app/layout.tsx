@@ -48,9 +48,6 @@ export async function generateMetadata(): Promise<Metadata> {
     ],
     creator: s.siteName,
     publisher: s.siteName,
-    alternates: {
-      canonical: "/",
-    },
     openGraph: {
       type: "website",
       locale: "en_US",
@@ -104,6 +101,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <link rel="alternate" type="application/rss+xml" title={settings.siteName} href="/feed.xml" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={jsonLdScript(organizationSchema())}

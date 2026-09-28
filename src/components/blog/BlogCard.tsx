@@ -10,10 +10,12 @@ import AuthorAvatar from "@/components/blog/AuthorAvatar";
 interface BlogCardProps {
   blog: Blog;
   variant?: "default" | "featured" | "compact" | "horizontal";
-  index?: number;
+  /** Preload the cover image. Only for cards visible on first paint: preloading
+   *  a whole grid makes every card compete with the page's real LCP image. */
+  preload?: boolean;
 }
 
-export default function BlogCard({ blog, variant = "default", index = 0 }: BlogCardProps) {
+export default function BlogCard({ blog, variant = "default", preload = false }: BlogCardProps) {
 
   if (variant === "horizontal") {
     return (
@@ -67,7 +69,7 @@ export default function BlogCard({ blog, variant = "default", index = 0 }: BlogC
           src={blog.featured_image}
           alt={blog.title}
           fill
-          priority={index < 3}
+          preload={preload}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
         />
