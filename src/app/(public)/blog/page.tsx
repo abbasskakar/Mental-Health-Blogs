@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/blog' },
   openGraph: {
     title: 'All Mental Health Articles',
-    description: 'Plain-language guides on anxiety, anger, stress, trauma and relationships.',
+    description: 'Plain-language guides on anxiety, anger, stress, trauma and relationships, reviewed by a licensed professional.',
     type: 'website',
     url: '/blog',
     images: [DEFAULT_OG_IMAGE],

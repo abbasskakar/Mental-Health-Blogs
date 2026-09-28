@@ -9,7 +9,7 @@ import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: { absolute: "About RegulatedSelf: Our Mission & Authors" },
-  description: "Why RegulatedSelf exists, how we approach evidence-based mental health writing, and who writes our articles. Meet our authors and their backgrounds.",
+  description: "Why RegulatedSelf exists, how every article is reviewed by a licensed mental health professional, and who writes them. Meet our authors.",
   alternates: { canonical: "/about" },
   openGraph: { title: "About RegulatedSelf", type: "website", url: "/about", images: [DEFAULT_OG_IMAGE] },
 };

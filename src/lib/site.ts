@@ -11,7 +11,7 @@ export const SITE_URL = (
 export const SITE_NAME = 'RegulatedSelf';
 export const SITE_TAGLINE = 'Your Guide to Mental Wellness';
 export const SITE_DESCRIPTION =
-  'Evidence-based, plain-language guides to nervous system and emotional regulation: anxiety, anger, stress, trauma and relationships.';
+  'Evidence-based, plain-language guides to nervous system and emotional regulation, reviewed by a licensed mental health professional.';
 
 export const TWITTER_HANDLE = '@regulatedself';
 
