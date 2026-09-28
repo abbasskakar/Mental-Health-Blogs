@@ -3,19 +3,23 @@ import { getFeaturedBlogs, getPublishedBlogs, getCategories, getSiteStats } from
 import { FAQ_DATA } from '@/lib/data';
 import HomePageClient from '@/components/home/HomePageClient';
 import type { Metadata } from 'next';
-import { SITE_NAME, SITE_TAGLINE, DEFAULT_OG_IMAGE } from '@/lib/site';
+import { SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/site';
 import { faqSchema, jsonLdScript } from '@/lib/schema';
+
+// Leads with what the site is about (nervous system and emotional regulation)
+// rather than the generic "mental wellness", which says nothing a searcher types.
+const HOME_TITLE = `Nervous System & Emotional Regulation Help | ${SITE_NAME}`;
 
 export const metadata: Metadata = {
   // absolute → bypasses the "%s | RegulatedSelf" template (brand already in title)
-  title: { absolute: `${SITE_NAME} — ${SITE_TAGLINE}` },
+  title: { absolute: HOME_TITLE },
   description:
-    'Evidence-based mental health articles to help you navigate anxiety, depression, stress, and emotional wellbeing. Written by licensed clinicians.',
-  keywords: ['mental health', 'anxiety', 'depression', 'mindfulness', 'therapy', 'wellness'],
+    'Plain-language guides to calming anxiety, anger, stress and old trauma, from how your nervous system works to scripts for hard conversations.',
+  keywords: ['nervous system regulation', 'emotional regulation', 'anxiety', 'anger', 'trauma', 'mental health'],
   alternates: { canonical: '/' },
   openGraph: {
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
-    description: 'Evidence-based mental health articles written by licensed clinicians.',
+    title: HOME_TITLE,
+    description: 'Plain-language guides to calming anxiety, anger, stress and old trauma.',
     type: 'website',
     url: '/',
     images: [DEFAULT_OG_IMAGE],

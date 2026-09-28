@@ -13,6 +13,19 @@ interface Props {
 
 export const revalidate = 60;
 
+// Search titles for the categories that exist today ("Anxiety Articles" matches
+// nothing anyone types). Keyed by slug; a category added or renamed in the admin
+// falls back to "<Name> Articles", so this can go stale but never break. Keep
+// each under 44 chars so " | RegulatedSelf" still fits in Google's ~60.
+const CATEGORY_TITLES: Record<string, string> = {
+  anxiety: "Anxiety: Symptoms, Causes & Calming Tools",
+  depression: "Depression & Low Mood: What Helps",
+  relationships: "Relationships: Conflict, Boundaries & Repair",
+  "self-care": "Self-Care & Nervous System Regulation Tools",
+  stress: "Stress, Anger & Burnout: What Helps",
+  trauma: "Trauma Healing: Inner Child & Flashbacks",
+};
+
 export async function generateStaticParams() {
   const categories = await getCategories();
   return categories.map((c) => ({ slug: c.slug }));
@@ -24,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = categories.find((c) => c.slug === slug);
   if (!category) return { title: "Category Not Found" };
 
-  const title = `${category.name} Articles`;
+  const title = CATEGORY_TITLES[category.slug] ?? `${category.name} Articles`;
   // category.description is a one-liner (~65 chars) — too short for a search
   // snippet, so Google would write its own. Extend it for the meta tag only.
   const topic = category.name.toLowerCase();

@@ -5,12 +5,12 @@ import type { Metadata } from 'next';
 import { DEFAULT_OG_IMAGE } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'All Articles',
-  description: 'Browse our complete library of evidence-based mental health articles on anxiety, depression, stress, mindfulness, therapy, and more.',
+  title: 'All Mental Health Articles',
+  description: 'Browse every RegulatedSelf article: plain-language, evidence-based guides on anxiety, anger, stress, trauma, relationships and nervous system regulation.',
   alternates: { canonical: '/blog' },
   openGraph: {
     title: 'All Mental Health Articles',
-    description: 'Browse evidence-based mental health articles written by licensed clinicians.',
+    description: 'Plain-language guides on anxiety, anger, stress, trauma and relationships.',
     type: 'website',
     url: '/blog',
     images: [DEFAULT_OG_IMAGE],

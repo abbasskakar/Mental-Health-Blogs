@@ -8,8 +8,8 @@ import { jsonLdScript, personSchema } from "@/lib/schema";
 import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "About Us",
-  description: "Learn about RegulatedSelf — our mission to provide evidence-based mental health guidance written by licensed professionals.",
+  title: { absolute: "About RegulatedSelf: Our Mission & Authors" },
+  description: "Why RegulatedSelf exists, how we approach evidence-based mental health writing, and who writes our articles. Meet our authors and their backgrounds.",
   alternates: { canonical: "/about" },
   openGraph: { title: "About RegulatedSelf", type: "website", url: "/about", images: [DEFAULT_OG_IMAGE] },
 };
