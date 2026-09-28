@@ -14,12 +14,12 @@ export const metadata: Metadata = {
   // absolute → bypasses the "%s | RegulatedSelf" template (brand already in title)
   title: { absolute: HOME_TITLE },
   description:
-    'Plain-language guides to calming anxiety, anger, stress and old trauma, each reviewed by a licensed mental health professional.',
+    'Evidence-based mental health articles to help you navigate anxiety, depression, stress, and emotional wellbeing. Written by licensed clinicians.',
   keywords: ['nervous system regulation', 'emotional regulation', 'anxiety', 'anger', 'trauma', 'mental health'],
   alternates: { canonical: '/' },
   openGraph: {
     title: HOME_TITLE,
-    description: 'Plain-language guides to anxiety, anger, stress and trauma, reviewed by a licensed professional.',
+    description: 'Evidence-based mental health articles written by licensed clinicians.',
     type: 'website',
     url: '/',
     images: [DEFAULT_OG_IMAGE],
