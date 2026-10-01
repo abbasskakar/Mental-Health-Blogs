@@ -26,7 +26,10 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60; // ISR: revalidate every 60 seconds
+// Hourly fallback only: admin saves revalidate on demand (src/lib/revalidate.ts).
+// A 60s timer re-rendered every crawled page each minute and burned the
+// Vercel Hobby ISR-write quota.
+export const revalidate = 3600;
 
 export default async function HomePage() {
   // Fetch data server-side (no loading state needed)

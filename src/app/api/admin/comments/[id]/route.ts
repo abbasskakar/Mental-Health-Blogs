@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin';
+
+// Post pages are ISR'd hourly, so push a moderation change onto the post now.
+async function revalidateCommentPost(admin: ReturnType<typeof createAdminSupabaseClient>, blogId: string) {
+  const { data: blog } = await admin.from('blogs').select('slug').eq('id', blogId).maybeSingle();
+  if (blog?.slug) revalidatePath(`/blog/${blog.slug}`);
+}
 
 // PATCH /api/admin/comments/[id] — update comment status or add admin reply
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,6 +40,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       // Also mark the original as replied
       await admin.from('comments').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', id);
+      await revalidateCommentPost(admin, original.blog_id);
 
       return NextResponse.json({ comment: newComment });
     }
@@ -51,6 +59,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .single();
 
     if (error) throw error;
+    if (comment?.blog_id) await revalidateCommentPost(admin, comment.blog_id);
 
     return NextResponse.json({ comment });
   } catch (error) {
@@ -68,10 +77,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const { id } = await params;
     const admin = createAdminSupabaseClient();
 
+    const { data: existing } = await admin.from('comments').select('blog_id').eq('id', id).maybeSingle();
+
     // Delete child replies first
     await admin.from('comments').delete().eq('parent_id', id);
     const { error } = await admin.from('comments').delete().eq('id', id);
     if (error) throw error;
+    if (existing?.blog_id) await revalidateCommentPost(admin, existing.blog_id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

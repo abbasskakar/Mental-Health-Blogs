@@ -21,7 +21,10 @@ const values = [
   { icon: Users, title: "Inclusive", desc: "Mental health affects everyone. Our content is accessible and culturally sensitive." },
 ];
 
-export const revalidate = 60;
+// Hourly fallback only: admin saves revalidate on demand (src/lib/revalidate.ts).
+// A 60s timer re-rendered every crawled page each minute and burned the
+// Vercel Hobby ISR-write quota.
+export const revalidate = 3600;
 
 export default async function AboutPage() {
   const [siteStats, authors] = await Promise.all([getSiteStats(), getAuthors()]);

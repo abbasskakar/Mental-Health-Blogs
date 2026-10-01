@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60;
+// Hourly fallback only: admin saves revalidate on demand (src/lib/revalidate.ts).
+// A 60s timer re-rendered every crawled page each minute and burned the
+// Vercel Hobby ISR-write quota.
+export const revalidate = 3600;
 
 // This page deliberately takes NO `searchParams`.
 //

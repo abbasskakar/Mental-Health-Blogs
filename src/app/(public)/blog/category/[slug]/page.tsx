@@ -11,7 +11,10 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 60;
+// Hourly fallback only: admin saves revalidate on demand (src/lib/revalidate.ts).
+// A 60s timer re-rendered every crawled page each minute and burned the
+// Vercel Hobby ISR-write quota.
+export const revalidate = 3600;
 
 // Search titles for the categories that exist today ("Anxiety Articles" matches
 // nothing anyone types). Keyed by slug; a category added or renamed in the admin
