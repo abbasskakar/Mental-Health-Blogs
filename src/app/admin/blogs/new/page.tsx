@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import EditorToolbar from "@/components/admin/EditorToolbar";
 import AuthorPicker from "@/components/admin/AuthorPicker";
 import { SITE_URL } from "@/lib/site";
-import { fromLocalInput, nowLocalInput } from "@/lib/schedule-input";
+import { fromLocalInput, nextQueueSlot, nowLocalInput } from "@/lib/schedule-input";
 
 interface Category { id: string; name: string; color: string; icon: string; }
 
@@ -233,7 +233,7 @@ export default function NewBlogPage() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-faint block mb-1.5">Status</label>
-                <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as any })} className="w-full px-3 py-2.5 bg-surface-alt border border-line text-body rounded-xl text-sm outline-none focus:border-accent">
+                <select value={form.status} onChange={(e) => { setForm({ ...form, status: e.target.value as any }); if (e.target.value === "scheduled" && !form.scheduled_at) nextQueueSlot().then(slot => setForm(f => ({ ...f, scheduled_at: f.scheduled_at || slot }))); }} className="w-full px-3 py-2.5 bg-surface-alt border border-line text-body rounded-xl text-sm outline-none focus:border-accent">
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                   <option value="scheduled">Scheduled</option>
@@ -241,7 +241,10 @@ export default function NewBlogPage() {
               </div>
               {form.status === "scheduled" && (
                 <div>
-                  <label className="text-xs text-faint block mb-1.5">Publish on (your local time)</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs text-faint">Publish on (your local time)</label>
+                    <button type="button" onClick={async () => { const slot = await nextQueueSlot(); setForm(f => ({ ...f, scheduled_at: slot })); }} className="text-[11px] font-semibold text-accent hover:underline">Next free day</button>
+                  </div>
                   <input
                     type="datetime-local"
                     value={form.scheduled_at}
@@ -249,7 +252,7 @@ export default function NewBlogPage() {
                     onChange={(e) => setForm({ ...form, scheduled_at: e.target.value })}
                     className="w-full px-3 py-2.5 bg-surface-alt border border-line text-body rounded-xl text-sm outline-none focus:border-accent"
                   />
-                  <p className="text-[11px] text-faint mt-1.5">Goes live automatically at this time.</p>
+                  <p className="text-[11px] text-faint mt-1.5">Goes live automatically at this time. &quot;Next free day&quot; picks 7:00 AM (PKT) the day after your last scheduled post.</p>
                 </div>
               )}
               <div className="flex items-center justify-between py-2">

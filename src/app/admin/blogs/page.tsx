@@ -19,6 +19,7 @@ interface Blog {
   likes_count: number;
   is_featured: boolean;
   published_at: string | null;
+  scheduled_at: string | null;
   created_at: string;
   category: { id: string; name: string; color: string; icon: string } | null;
   author: { id: string; name: string; avatar_url: string | null } | null;
@@ -235,6 +236,11 @@ export default function AdminBlogsPage() {
                     <span className={cn("px-2 py-1 rounded-full text-[10px] font-bold capitalize", statusConfig[blog.status]?.color ?? 'bg-surface-alt text-faint')}>
                       {blog.status}
                     </span>
+                    {blog.status === 'scheduled' && blog.scheduled_at && (
+                      <p className="text-[10px] text-faint mt-1 whitespace-nowrap">
+                        Live: {new Date(blog.scheduled_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                      </p>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-xs text-faint">{blog.category?.name ?? '—'}</td>
                   <td className="px-5 py-4 text-xs text-faint">{blog.views_count.toLocaleString()}</td>
