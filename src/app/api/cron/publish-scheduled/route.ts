@@ -22,6 +22,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const published = await publishDueScheduledBlogs();
+    // Leaves a line in Vercel's logs on every run, so a run with nothing due
+    // still shows up as a run.
+    console.log(`publish-scheduled: ${published.length} post(s) published`, published);
     return NextResponse.json({ published });
   } catch (error) {
     console.error('Cron publish-scheduled error:', error);
