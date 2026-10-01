@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import EditorToolbar from "@/components/admin/EditorToolbar";
 import AuthorPicker from "@/components/admin/AuthorPicker";
 import { SITE_URL } from "@/lib/site";
-import { fromLocalInput, getQueuePerDay, nextQueueSlot, nowLocalInput, setQueuePerDay, toLocalInput } from "@/lib/schedule-input";
+import { fromLocalInput, nextQueueSlot, nowLocalInput, toLocalInput } from "@/lib/schedule-input";
 
 interface Category { id: string; name: string; color: string; icon: string; }
 
@@ -308,18 +308,7 @@ export default function EditBlogPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs text-faint">Publish on (your local time)</label>
-                    <div className="flex items-center gap-2">
-                      <select
-                        aria-label="Posts per day"
-                        defaultValue={String(getQueuePerDay())}
-                        onChange={(e) => setQueuePerDay(e.target.value === "2" ? 2 : 1)}
-                        className="text-[11px] bg-surface-alt border border-line rounded-lg px-1.5 py-0.5 text-body outline-none"
-                      >
-                        <option value="1">1 / day</option>
-                        <option value="2">2 / day</option>
-                      </select>
-                      <button type="button" onClick={async () => { const slot = await nextQueueSlot(id); setForm(f => ({ ...f, scheduled_at: slot })); }} className="text-[11px] font-semibold text-accent hover:underline">Next free slot</button>
-                    </div>
+                    <button type="button" onClick={async () => { const slot = await nextQueueSlot(id); setForm(f => ({ ...f, scheduled_at: slot })); }} className="text-[11px] font-semibold text-accent hover:underline">Next free day</button>
                   </div>
                   <input
                     type="datetime-local"
@@ -328,7 +317,7 @@ export default function EditBlogPage() {
                     onChange={(e) => setForm(f => ({ ...f, scheduled_at: e.target.value }))}
                     className="w-full px-3 py-2.5 bg-surface-alt border border-line text-body rounded-xl text-sm outline-none focus:border-accent"
                   />
-                  <p className="text-[11px] text-faint mt-1.5">Goes live automatically at this time. &quot;Next free slot&quot; picks the next 7:00 AM (1 / day) or 7:00 AM / 6:00 PM (2 / day, PKT) after your last scheduled post.</p>
+                  <p className="text-[11px] text-faint mt-1.5">Goes live automatically at this time. &quot;Next free day&quot; picks 7:00 AM (PKT) the day after your last scheduled post.</p>
                 </div>
               )}
               <div className="flex items-center justify-between py-2">
