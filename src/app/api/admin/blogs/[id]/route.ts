@@ -3,6 +3,7 @@ import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin
 import { slugify } from '@/lib/utils';
 import { formatBlogContent } from '@/lib/format-content';
 import { revalidateBlogPaths } from '@/lib/revalidate';
+import { parseScheduledAt, validateSchedule } from '@/lib/scheduled';
 
 // GET /api/admin/blogs/[id]
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -96,7 +97,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (tags !== undefined) updates.tags = tags;
     if (is_featured !== undefined) updates.is_featured = is_featured;
     if (status !== undefined) {
+      const scheduled_at = parseScheduledAt(body.scheduled_at);
+      const scheduleError = validateSchedule(status, scheduled_at);
+      if (scheduleError) return NextResponse.json({ error: scheduleError }, { status: 400 });
       updates.status = status;
+      updates.scheduled_at = status === 'scheduled' ? scheduled_at : null;
       // Set published_at when first publishing
       if (status === 'published' && current?.status !== 'published' && !current?.published_at) {
         updates.published_at = new Date().toISOString();

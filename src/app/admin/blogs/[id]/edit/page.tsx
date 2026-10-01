@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import EditorToolbar from "@/components/admin/EditorToolbar";
 import AuthorPicker from "@/components/admin/AuthorPicker";
 import { SITE_URL } from "@/lib/site";
+import { fromLocalInput, nowLocalInput, toLocalInput } from "@/lib/schedule-input";
 
 interface Category { id: string; name: string; color: string; icon: string; }
 
@@ -43,6 +44,7 @@ export default function EditBlogPage() {
     featured_image: "",
     is_featured: false,
     status: "draft" as "draft" | "published" | "scheduled" | "archived",
+    scheduled_at: "",
     meta_title: "",
     meta_description: "",
   });
@@ -65,6 +67,7 @@ export default function EditBlogPage() {
             featured_image: b.featured_image ?? "",
             is_featured: b.is_featured ?? false,
             status: b.status ?? "draft",
+            scheduled_at: toLocalInput(b.scheduled_at),
             meta_title: b.meta_title ?? "",
             meta_description: b.meta_description ?? "",
           });
@@ -91,18 +94,21 @@ export default function EditBlogPage() {
 
   const handleSave = async (status?: typeof form.status) => {
     if (!form.title.trim()) { setError("Title is required"); return; }
+    const finalStatus = status ?? form.status;
+    if (finalStatus === "scheduled" && !form.scheduled_at) { setError("Pick a date and time to schedule this post"); return; }
     setSaving(true);
     setError("");
     try {
       const res = await fetch(`/api/admin/blogs/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, status: status ?? form.status }),
+        body: JSON.stringify({ ...form, status: finalStatus, scheduled_at: fromLocalInput(form.scheduled_at) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
       setSaved(true);
-      toast.success("Blog updated successfully!");
+      if (finalStatus !== form.status) setForm(f => ({ ...f, status: finalStatus }));
+      toast.success(finalStatus === "scheduled" ? `Scheduled for ${new Date(form.scheduled_at).toLocaleString()}` : "Blog updated successfully!");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       setError(err.message);
@@ -160,11 +166,13 @@ export default function EditBlogPage() {
           <button onClick={() => handleSave("draft")} disabled={saving} className="px-3 sm:px-4 py-2 rounded-xl bg-surface-alt border border-line text-body text-sm font-semibold hover:bg-line transition-colors flex items-center gap-1.5 disabled:opacity-50">
             <Save className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Save Draft</span><span className="sm:hidden">Draft</span>
           </button>
-          <button onClick={() => handleSave("published")} disabled={saving}
+          <button onClick={() => handleSave(form.status === "scheduled" ? "scheduled" : "published")} disabled={saving}
             className={cn("px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-all shadow-sm", saved ? "bg-accent text-white" : "bg-accent hover:bg-accent-hover text-white disabled:opacity-50")}>
             {saving ? <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span className="hidden sm:inline">Saving...</span></>
               : saved ? <><CheckCircle className="w-3.5 h-3.5" /><span className="hidden sm:inline">Saved!</span></>
-              : <><Globe className="w-3.5 h-3.5" /><span className="hidden sm:inline">Update & Publish</span><span className="sm:hidden">Publish</span></>}
+              : form.status === "scheduled"
+                ? <><Clock className="w-3.5 h-3.5" /><span className="hidden sm:inline">Update & Schedule</span><span className="sm:hidden">Schedule</span></>
+                : <><Globe className="w-3.5 h-3.5" /><span className="hidden sm:inline">Update & Publish</span><span className="sm:hidden">Publish</span></>}
           </button>
         </div>
       </div>
@@ -296,6 +304,19 @@ export default function EditBlogPage() {
                   <option value="archived">Archived</option>
                 </select>
               </div>
+              {form.status === "scheduled" && (
+                <div>
+                  <label className="text-xs text-faint block mb-1.5">Publish on (your local time)</label>
+                  <input
+                    type="datetime-local"
+                    value={form.scheduled_at}
+                    min={nowLocalInput()}
+                    onChange={(e) => setForm(f => ({ ...f, scheduled_at: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-surface-alt border border-line text-body rounded-xl text-sm outline-none focus:border-accent"
+                  />
+                  <p className="text-[11px] text-faint mt-1.5">Goes live automatically at this time.</p>
+                </div>
+              )}
               <div className="flex items-center justify-between py-2">
                 <span className="text-sm text-body">Mark as Featured</span>
                 <button onClick={() => setForm(f => ({ ...f, is_featured: !f.is_featured }))} className={cn("w-11 h-6 rounded-full flex items-center transition-colors", form.is_featured ? "bg-accent" : "bg-surface-alt")}>

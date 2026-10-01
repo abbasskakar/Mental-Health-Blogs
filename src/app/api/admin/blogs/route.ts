@@ -3,6 +3,7 @@ import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin
 import { slugify } from '@/lib/utils';
 import { formatBlogContent } from '@/lib/format-content';
 import { revalidateBlogPaths } from '@/lib/revalidate';
+import { parseScheduledAt, publishDueScheduledBlogs, validateSchedule } from '@/lib/scheduled';
 
 // GET /api/admin/blogs — Fetch all blogs for admin panel
 export async function GET(request: NextRequest) {
@@ -12,6 +13,9 @@ export async function GET(request: NextRequest) {
 
     const admin = createAdminSupabaseClient();
     const { searchParams } = new URL(request.url);
+
+    // Flip any due scheduled posts first so the list shows their real status.
+    await publishDueScheduledBlogs().catch((e) => console.error('Scheduled publish check failed:', e));
 
     const status = searchParams.get('status') || 'all';
     const category = searchParams.get('category') || '';
@@ -74,6 +78,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
+    const scheduled_at = parseScheduledAt(body.scheduled_at);
+    const scheduleError = validateSchedule(status, scheduled_at);
+    if (scheduleError) return NextResponse.json({ error: scheduleError }, { status: 400 });
+
     const slug = rawSlug?.trim() ? slugify(rawSlug) : slugify(title);
 
     // Check slug uniqueness
@@ -112,6 +120,7 @@ export async function POST(request: NextRequest) {
       meta_title: meta_title?.trim() ?? null,
       meta_description: meta_description?.trim() ?? null,
       published_at: status === 'published' ? new Date().toISOString() : null,
+      scheduled_at: status === 'scheduled' ? scheduled_at : null,
     }).select().single();
 
     if (error) throw error;

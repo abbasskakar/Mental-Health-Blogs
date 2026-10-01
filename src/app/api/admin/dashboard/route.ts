@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminSupabaseClient, verifyAdminUser } from '@/lib/supabase/admin';
+import { publishDueScheduledBlogs } from '@/lib/scheduled';
 
 export async function GET(_request: NextRequest) {
   try {
@@ -7,6 +8,9 @@ export async function GET(_request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const admin = createAdminSupabaseClient();
+
+    // Flip any due scheduled posts first so the counts are current.
+    await publishDueScheduledBlogs().catch((e) => console.error('Scheduled publish check failed:', e));
 
     const [
       blogsRes,

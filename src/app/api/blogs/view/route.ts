@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { incrementBlogViews } from '@/lib/supabase/queries';
 import { rateLimit, isLimited, clientIp, RATE_LIMITED } from '@/lib/rate-limit';
+import { maybePublishDue } from '@/lib/scheduled';
 
 // POST /api/blogs/view — records one view of a post.
 //
@@ -10,6 +11,10 @@ import { rateLimit, isLimited, clientIp, RATE_LIMITED } from '@/lib/rate-limit';
 // permanently empty.
 export async function POST(request: NextRequest) {
   try {
+    // Piggyback the scheduled-post check on real traffic (throttled, never
+    // throws) so posts go live on time without a paid cron plan.
+    await maybePublishDue();
+
     const { blog_id } = await request.json();
 
     if (!blog_id) {
