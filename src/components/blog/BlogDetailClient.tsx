@@ -11,6 +11,7 @@ import {
 import BlogCard from "@/components/blog/BlogCard";
 import AuthorAvatar from "@/components/blog/AuthorAvatar";
 import { formatDate, formatNumber, slugify } from "@/lib/utils";
+import { useBlogStats } from "@/lib/blog-stats";
 import { cn } from "@/lib/utils";
 import type { CommentRow } from "@/types/database";
 
@@ -78,7 +79,13 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
   const [commentError, setCommentError] = useState("");
   const authorHref = `/about#${slugify(blog.author.name)}`;
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(blog.likes_count);
+  // The cached page ships zero counts; the live ones load after mount. The
+  // reader's own like/unlike is kept as a delta on top, so a click made before
+  // the counts arrive still shows.
+  const [likeDelta, setLikeDelta] = useState(0);
+  const liveStats = useBlogStats()?.[blog.id];
+  const views = liveStats?.[0];
+  const likesCount = Math.max(0, (liveStats?.[1] ?? blog.likes_count) + likeDelta);
   const [bookmarked, setBookmarked] = useState(false);
 
   // Record the view. Fire-and-forget: a failure here must never affect the
@@ -158,7 +165,7 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
     };
     // Optimistic update
     setLiked(!unlike);
-    setLikesCount(c => Math.max(0, c + delta));
+    setLikeDelta(d => d + delta);
     remember(!unlike);
     try {
       const res = await fetch('/api/blogs/like', {
@@ -170,7 +177,7 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
     } catch {
       // Revert on failure (network error OR non-2xx response)
       setLiked(unlike);
-      setLikesCount(c => Math.max(0, c - delta));
+      setLikeDelta(d => d - delta);
       remember(unlike);
     } finally {
       likeBusy.current = false;
@@ -279,7 +286,9 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
               <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {formatDate(blog.published_at)}</span>
               <span className="flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5" /> Updated {formatDate(blog.updated_at)}</span>
               <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {blog.reading_time} min read</span>
-              <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {formatNumber(blog.views_count)} views</span>
+              {views !== undefined && (
+                <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {formatNumber(views)} views</span>
+              )}
             </div>
           </div>
         </div>

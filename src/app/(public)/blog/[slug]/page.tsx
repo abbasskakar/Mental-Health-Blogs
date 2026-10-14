@@ -110,8 +110,10 @@ export default async function BlogDetailPage({ params }: Props) {
         }
       : { name: "Dr. Sarah Mitchell", avatar: "", bio: "", credentials: "", twitter_url: null, linkedin_url: null },
     reading_time: blog.reading_time,
-    views_count: blog.views_count,
-    likes_count: blog.likes_count,
+    // Counts change on every visit; baking them in would make each hourly
+    // revalidation a new ISR write. The article loads them from /api/blogs/stats.
+    views_count: 0,
+    likes_count: 0,
     is_featured: blog.is_featured,
     status: blog.status,
     published_at: blog.published_at ?? blog.created_at,

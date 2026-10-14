@@ -7,6 +7,7 @@ import { ArrowRight, ChevronDown, CheckCircle, Loader2, BookOpen } from "lucide-
 import { AnimatePresence, motion } from "framer-motion";
 import BlogCard from "@/components/blog/BlogCard";
 import { cn } from "@/lib/utils";
+import { useBlogStats, withStats } from "@/lib/blog-stats";
 import type { BlogWithRelations, CategoryRow } from "@/types/database";
 
 const sortOptions = [
@@ -59,7 +60,8 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
   const [email, setEmail] = useState("");
   const [nlStatus, setNlStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const adapted = initialBlogs.map(adaptBlog);
+  const blogStats = useBlogStats();
+  const adapted = initialBlogs.map((b) => withStats(adaptBlog(b), blogStats));
   const adaptedFeatured = featuredBlogs.map(adaptBlog);
 
   const filtered = adapted

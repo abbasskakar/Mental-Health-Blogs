@@ -6,6 +6,7 @@ import { Clock, Eye, ArrowRight } from "lucide-react";
 import { cn, formatDateShort, formatNumber } from "@/lib/utils";
 import type { Blog } from "@/types";
 import AuthorAvatar from "@/components/blog/AuthorAvatar";
+import { useBlogStats } from "@/lib/blog-stats";
 
 interface BlogCardProps {
   blog: Blog;
@@ -16,6 +17,8 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ blog, variant = "default", preload = false }: BlogCardProps) {
+  // Cached pages carry no counts; the live number arrives after mount.
+  const views = useBlogStats()?.[blog.id]?.[0];
 
   if (variant === "horizontal") {
     return (
@@ -50,7 +53,7 @@ export default function BlogCard({ blog, variant = "default", preload = false }:
               <Clock className="w-3 h-3" strokeWidth={1.5} /> {blog.reading_time} min
             </span>
             <span className="flex items-center gap-1">
-              <Eye className="w-3 h-3" strokeWidth={1.5} /> {formatNumber(blog.views_count)}
+              <Eye className="w-3 h-3" strokeWidth={1.5} /> {views === undefined ? "" : formatNumber(views)}
             </span>
           </div>
         </div>

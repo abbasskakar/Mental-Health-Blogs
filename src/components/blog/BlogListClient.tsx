@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, BookOpen, SlidersHorizontal } from "lucide-react";
 import BlogCard from "@/components/blog/BlogCard";
+import { useBlogStats, withStats } from "@/lib/blog-stats";
 import type { BlogWithRelations, CategoryRow } from "@/types/database";
 
 const sortOptions = [
@@ -83,7 +84,11 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
     }
   }, [categories, router]);
 
-  const adapted = useMemo(() => initialBlogs.map(adaptBlog), [initialBlogs]);
+  const blogStats = useBlogStats();
+  const adapted = useMemo(
+    () => initialBlogs.map((b) => withStats(adaptBlog(b), blogStats)),
+    [initialBlogs, blogStats],
+  );
 
   const filtered = useMemo(() => {
     let r = adapted;

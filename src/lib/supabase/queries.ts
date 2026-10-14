@@ -31,9 +31,40 @@ const CARD_COLUMNS =
   'published_at, scheduled_at, created_at, updated_at';
 const CARD_SELECT = `${CARD_COLUMNS}, category:categories(*), author:authors(${AUTHOR_COLUMNS})`;
 
-/** Card rows carry no body; `content` is blanked so they still fit BlogWithRelations. */
+/**
+ * Card rows carry no body; `content` is blanked so they still fit BlogWithRelations.
+ *
+ * View and like counts are zeroed as well. They change with every visit, and a
+ * count baked into a cached page made each hourly revalidation a fresh ISR
+ * write (242K of the Hobby plan's 200K a month). Browsers load the live counts
+ * from /api/blogs/stats instead (see src/lib/blog-stats.ts).
+ */
 function asCards(rows: unknown[] | null): BlogWithRelations[] {
-  return (rows ?? []).map((r) => ({ content: '', schema_markup: null, ...(r as object) })) as BlogWithRelations[];
+  return (rows ?? []).map((r) => ({
+    content: '',
+    schema_markup: null,
+    ...(r as object),
+    views_count: 0,
+    likes_count: 0,
+  })) as BlogWithRelations[];
+}
+
+/**
+ * Live view and like counts for every published post, keyed by blog id as
+ * [views, likes]. Served by /api/blogs/stats so the counts never end up in a
+ * cached page.
+ */
+export async function getBlogStats(): Promise<Record<string, [number, number]> | null> {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from('blogs')
+    .select('id, views_count, likes_count')
+    .eq('status', 'published');
+  if (error) {
+    console.error('getBlogStats error:', error);
+    return null;
+  }
+  return Object.fromEntries(data.map((b) => [b.id, [b.views_count ?? 0, b.likes_count ?? 0]]));
 }
 
 // ─── BLOGS ────────────────────────────────────────────────────────────────────
