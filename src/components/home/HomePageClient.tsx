@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, ChevronDown, CheckCircle, Loader2, BookOpen } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import BlogCard from "@/components/blog/BlogCard";
@@ -174,7 +173,7 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
             </div>
             <div className="grid md:grid-cols-3 gap-5">
               {adaptedFeatured.map((blog) => (
-                <BlogCard key={blog.id} blog={blog} variant="featured" />
+                <BlogCard key={blog.id} blog={blog} />
               ))}
             </div>
           </div>

@@ -20,9 +20,9 @@ function loadStats(): Promise<BlogStats | null> {
 }
 
 /**
- * Live view and like counts. Cached pages ship zeros for both (see asCards in
- * src/lib/supabase/queries.ts), so anything that shows or sorts by a count
- * reads it from here. Returns null until the counts have loaded.
+ * Live view and like counts. Cached pages carry no counts at all (see
+ * BlogCardRow in src/types/database.ts), so anything that shows or sorts by a
+ * count reads it from here. Returns null until the counts have loaded.
  */
 export function useBlogStats(): BlogStats | null {
   const [stats, setStats] = useState<BlogStats | null>(null);
@@ -38,11 +38,3 @@ export function useBlogStats(): BlogStats | null {
   return stats;
 }
 
-/** A copy of `blog` with its live counts, or `blog` itself until they load. */
-export function withStats<T extends { id: string; views_count: number; likes_count: number }>(
-  blog: T,
-  stats: BlogStats | null,
-): T {
-  const s = stats?.[blog.id];
-  return s ? { ...blog, views_count: s[0], likes_count: s[1] } : blog;
-}

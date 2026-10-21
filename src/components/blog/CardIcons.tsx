@@ -1,5 +1,5 @@
 /**
- * The three lucide icons a <BlogCard> uses, drawn once as SVG <symbol>s and
+ * The two lucide icons a <BlogCard> uses, drawn once as SVG <symbol>s and
  * referenced with <use>.
  *
  * Each inline lucide icon is ~320 bytes of markup. /blog renders every post,
@@ -18,15 +18,6 @@ const ICONS = {
       <>
         <circle cx="12" cy="12" r="10" />
         <path d="M12 6v6l4 2" />
-      </>
-    ),
-  },
-  eye: {
-    strokeWidth: 1.5,
-    paths: (
-      <>
-        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-        <circle cx="12" cy="12" r="3" />
       </>
     ),
   },

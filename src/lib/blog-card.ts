@@ -11,7 +11,7 @@
  * components import the types.
  */
 
-import type { BlogCardRow, CardAuthor, CardCategory } from '@/types/database';
+import type { BlogCardRow, CardAuthor, CardCategory, CategoryRow } from '@/types/database';
 
 /** Everything a <BlogCard> renders. */
 export interface BlogCardData {
@@ -28,10 +28,14 @@ export interface BlogCardData {
   published_at: string;
 }
 
-export const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80';
-export const FALLBACK_CATEGORY = { name: 'General', slug: 'general', color: '#0D9488' };
-export const FALLBACK_AUTHOR = { name: 'Dr. Sarah Mitchell', avatar: null };
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80';
+const FALLBACK_CATEGORY = { name: 'General', slug: 'general', color: '#0D9488' };
+const FALLBACK_AUTHOR = { name: 'Dr. Sarah Mitchell', avatar: null };
+
+/** What a client component needs of a category: its filter chip and card pill. */
+export function toCardCategory({ id, name, slug, color }: CategoryRow): CardCategory {
+  return { id, name, slug, color };
+}
 
 /** A card from a listing row, using its own nested category and author. */
 export function toBlogCard(row: BlogCardRow): BlogCardData {

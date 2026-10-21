@@ -1,6 +1,7 @@
 // Server Component — fetches blogs & categories from Supabase
 import { getPublishedBlogs, getCategories } from '@/lib/supabase/queries';
 import BlogListClient from '@/components/blog/BlogListClient';
+import { toCardCategory } from '@/lib/blog-card';
 import type { CardAuthor } from '@/types/database';
 import type { Metadata } from 'next';
 import { DEFAULT_OG_IMAGE } from '@/lib/site';
@@ -50,7 +51,12 @@ export default async function BlogListPage() {
     if (author) authors.set(author.id, author);
     return post;
   });
-  const cardCategories = categories.map(({ id, name, slug, color }) => ({ id, name, slug, color }));
 
-  return <BlogListClient initialBlogs={posts} categories={cardCategories} authors={[...authors.values()]} />;
+  return (
+    <BlogListClient
+      initialBlogs={posts}
+      categories={categories.map(toCardCategory)}
+      authors={[...authors.values()]}
+    />
+  );
 }
