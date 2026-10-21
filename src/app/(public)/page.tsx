@@ -2,6 +2,7 @@
 import { getFeaturedBlogs, getPublishedBlogs, getCategories, getSiteStats } from '@/lib/supabase/queries';
 import { FAQ_DATA } from '@/lib/data';
 import HomePageClient from '@/components/home/HomePageClient';
+import { toBlogCard } from '@/lib/blog-card';
 import type { Metadata } from 'next';
 import { SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/site';
 import { faqSchema, jsonLdScript } from '@/lib/schema';
@@ -55,9 +56,9 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={jsonLdScript(faqSchema(FAQ_DATA))}
       />
       <HomePageClient
-        featuredBlogs={featuredBlogs}
-        initialBlogs={latestBlogs}
-        categories={categories}
+        featuredBlogs={featuredBlogs.map(toBlogCard)}
+        initialBlogs={latestBlogs.map(toBlogCard)}
+        categories={categories.map(({ id, name, slug, color }) => ({ id, name, slug, color }))}
         stats={stats}
         faqs={FAQ_DATA}
       />

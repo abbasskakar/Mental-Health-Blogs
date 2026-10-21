@@ -1,4 +1,4 @@
-import { getPublishedBlogs } from '@/lib/supabase/queries';
+import { getFeedPosts } from '@/lib/supabase/queries';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, absoluteUrl } from '@/lib/site';
 
 // RSS 2.0 feed of every published post. Feed readers and aggregators pick new
@@ -13,7 +13,7 @@ const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export async function GET() {
-  const { blogs } = await getPublishedBlogs({ limit: 500, sortBy: 'newest' });
+  const blogs = await getFeedPosts();
 
   const items = blogs
     .map((b) => {

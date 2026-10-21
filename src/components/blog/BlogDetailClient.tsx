@@ -14,6 +14,7 @@ import { formatDate, formatNumber, slugify } from "@/lib/utils";
 import { useBlogStats } from "@/lib/blog-stats";
 import { cn } from "@/lib/utils";
 import type { CommentRow } from "@/types/database";
+import type { BlogCardData } from "@/lib/blog-card";
 
 const TwitterIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
@@ -55,7 +56,7 @@ interface BlogDetailClientProps {
     meta_title: string;
     meta_description: string;
   };
-  relatedBlogs: BlogDetailClientProps['blog'][];
+  relatedBlogs: BlogCardData[];
   initialComments: CommentRow[];
   prevBlog?: { title: string; slug: string } | null;
   nextBlog?: { title: string; slug: string } | null;
@@ -636,7 +637,7 @@ export default function BlogDetailClient({ blog, relatedBlogs, initialComments, 
             <h2 className="text-2xl font-bold text-heading mb-6">You Might Also Like</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedBlogs.map((b) => (
-                <BlogCard key={b.id} blog={b as any} />
+                <BlogCard key={b.id} blog={b} />
               ))}
             </div>
           </div>

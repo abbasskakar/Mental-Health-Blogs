@@ -1,6 +1,7 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/layout/BackToTop";
+import { CardIconSprite } from "@/components/blog/CardIcons";
 import { getResolvedSettings } from "@/lib/settings";
 import { getCategories } from "@/lib/supabase/queries";
 
@@ -21,6 +22,8 @@ export default async function PublicLayout({
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Icon symbols every <BlogCard> on the site references with <use>. */}
+      <CardIconSprite />
       <Navbar
         siteName={settings.siteName}
         logoUrl={settings.logoUrl}

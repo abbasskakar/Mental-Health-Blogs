@@ -1,6 +1,7 @@
 // Server Component — fetches blogs & categories from Supabase
 import { getPublishedBlogs, getCategories } from '@/lib/supabase/queries';
 import BlogListClient from '@/components/blog/BlogListClient';
+import type { CardAuthor } from '@/types/database';
 import type { Metadata } from 'next';
 import { DEFAULT_OG_IMAGE } from '@/lib/site';
 
@@ -40,5 +41,16 @@ export default async function BlogListPage() {
     getCategories(),
   ]);
 
-  return <BlogListClient initialBlogs={blogs} categories={categories} />;
+  // Every byte sent to the client component is repeated per post and billed
+  // by Vercel on each ISR write of this page, so each post keeps only its
+  // category and author ids, and the categories and authors go once.
+  const authors = new Map<string, CardAuthor>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- `category` is only pulled out to drop it
+  const posts = blogs.map(({ category, author, ...post }) => {
+    if (author) authors.set(author.id, author);
+    return post;
+  });
+  const cardCategories = categories.map(({ id, name, slug, color }) => ({ id, name, slug, color }));
+
+  return <BlogListClient initialBlogs={posts} categories={cardCategories} authors={[...authors.values()]} />;
 }

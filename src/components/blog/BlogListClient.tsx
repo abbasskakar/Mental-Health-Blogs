@@ -4,8 +4,9 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, BookOpen, SlidersHorizontal } from "lucide-react";
 import BlogCard from "@/components/blog/BlogCard";
-import { useBlogStats, withStats } from "@/lib/blog-stats";
-import type { BlogWithRelations, CategoryRow } from "@/types/database";
+import { useBlogStats } from "@/lib/blog-stats";
+import { cardFrom } from "@/lib/blog-card";
+import type { BlogCardRow, CardAuthor, CardCategory } from "@/types/database";
 
 const sortOptions = [
   { label: "Latest", value: "newest" },
@@ -14,48 +15,34 @@ const sortOptions = [
   { label: "Oldest", value: "oldest" },
 ];
 
+/**
+ * A post as /blog sends it: its category and author are ids into the
+ * `categories` and `authors` lists, which the page sends once. Repeating both
+ * objects in every one of 190+ posts was a third of the page's RSC payload.
+ */
+export type BlogListPost = Omit<BlogCardRow, "category" | "author">;
+
 interface BlogListClientProps {
-  initialBlogs: BlogWithRelations[];
-  categories: CategoryRow[];
+  initialBlogs: BlogListPost[];
+  categories: CardCategory[];
+  authors: CardAuthor[];
   initialCategory?: string;
   initialSearch?: string;
 }
 
-function adaptBlog(blog: BlogWithRelations) {
-  return {
-    id: blog.id,
-    title: blog.title,
-    slug: blog.slug,
-    excerpt: blog.excerpt ?? "",
-    content: blog.content,
-    featured_image: blog.featured_image ?? "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80",
-    category: blog.category
-      ? { id: blog.category.id, name: blog.category.name, slug: blog.category.slug, color: blog.category.color }
-      : { id: "0", name: "General", slug: "general", color: "#0D9488" },
-    tags: blog.tags ?? [],
-    author: blog.author
-      ? { name: blog.author.name, avatar: blog.author.avatar_url ?? "" }
-      : { name: "Dr. Sarah Mitchell", avatar: "" },
-    reading_time: blog.reading_time,
-    views_count: blog.views_count,
-    likes_count: blog.likes_count,
-    is_featured: blog.is_featured,
-    status: blog.status,
-    published_at: blog.published_at ?? blog.created_at,
-    created_at: blog.created_at,
-    updated_at: blog.updated_at,
-    meta_title: blog.meta_title ?? blog.title,
-    meta_description: blog.meta_description ?? blog.excerpt ?? "",
-  };
-}
-
-export default function BlogListClient({ initialBlogs, categories, initialCategory = "all", initialSearch = "" }: BlogListClientProps) {
+export default function BlogListClient({
+  initialBlogs,
+  categories,
+  authors,
+  initialCategory = "all",
+  initialSearch = "",
+}: BlogListClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState("newest");
-  // Show every post the server sent (the page fetches up to 500, and cards no
-  // longer carry the article body, so that stays light). "Load more" was a
+  // Show every post the server sent (the page fetches up to 500, and cards
+  // carry only what they render, so that stays light). "Load more" was a
   // client-side button, so crawlers — which don't click — only ever saw the
   // first 9 posts and the rest got no link from the main listing page.
   const [visibleCount, setVisibleCount] = useState(500);
@@ -84,11 +71,20 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
     }
   }, [categories, router]);
 
+  // Live view and like counts, loaded after mount (cached pages carry none).
   const blogStats = useBlogStats();
-  const adapted = useMemo(
-    () => initialBlogs.map((b) => withStats(adaptBlog(b), blogStats)),
-    [initialBlogs, blogStats],
-  );
+
+  const adapted = useMemo(() => {
+    const categoryById = new Map(categories.map((c) => [c.id, c]));
+    const authorById = new Map(authors.map((a) => [a.id, a]));
+    return initialBlogs.map((b) =>
+      cardFrom(
+        b,
+        b.category_id ? categoryById.get(b.category_id) : null,
+        b.author_id ? authorById.get(b.author_id) : null,
+      ),
+    );
+  }, [initialBlogs, categories, authors]);
 
   const filtered = useMemo(() => {
     let r = adapted;
@@ -110,12 +106,12 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
     switch (sortBy) {
       case "newest": r = [...r].sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()); break;
       case "oldest": r = [...r].sort((a, b) => new Date(a.published_at).getTime() - new Date(b.published_at).getTime()); break;
-      case "most_read": r = [...r].sort((a, b) => b.views_count - a.views_count); break;
-      case "most_liked": r = [...r].sort((a, b) => b.likes_count - a.likes_count); break;
+      case "most_read": r = [...r].sort((a, b) => (blogStats?.[b.id]?.[0] ?? 0) - (blogStats?.[a.id]?.[0] ?? 0)); break;
+      case "most_liked": r = [...r].sort((a, b) => (blogStats?.[b.id]?.[1] ?? 0) - (blogStats?.[a.id]?.[1] ?? 0)); break;
     }
 
     return r;
-  }, [adapted, search, activeCategory, sortBy]);
+  }, [adapted, search, activeCategory, sortBy, blogStats]);
 
   const hasFilters = search || activeCategory !== "all";
 
@@ -279,7 +275,7 @@ export default function BlogListClient({ initialBlogs, categories, initialCatego
           <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.slice(0, visibleCount).map((blog, i) => (
-                <BlogCard key={blog.id} blog={blog as any} preload={i < 3} />
+                <BlogCard key={blog.id} blog={blog} preload={i < 3} />
               ))}
             </div>
 

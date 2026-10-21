@@ -354,3 +354,33 @@ export type BlogWithRelations = BlogRow & {
   category: CategoryRow | null;
   author: PublicAuthor | null;
 };
+
+// What a listing card shows of a category and an author.
+export type CardCategory = Pick<CategoryRow, 'id' | 'name' | 'slug' | 'color'>;
+export type CardAuthor = Pick<PublicAuthor, 'id' | 'name' | 'avatar_url'>;
+
+/**
+ * A published post as the listing queries return it (asCards in
+ * src/lib/supabase/queries.ts): the columns a card renders and nothing else,
+ * since /blog sends one of these per post in a page Vercel bills by the 8 KB.
+ *
+ * No view or like counts: they change with every visit, and a count baked into
+ * a cached page made each revalidation a fresh ISR write. Browsers load them
+ * from /api/blogs/stats (src/lib/blog-stats.ts).
+ */
+export type BlogCardRow = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  category_id: string | null;
+  author_id: string | null;
+  tags: string[];
+  reading_time: number;
+  is_featured: boolean;
+  /** Publish date; the creation date for a row without one. */
+  published_at: string;
+  category: CardCategory | null;
+  author: CardAuthor | null;
+};

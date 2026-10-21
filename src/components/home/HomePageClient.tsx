@@ -7,8 +7,9 @@ import { ArrowRight, ChevronDown, CheckCircle, Loader2, BookOpen } from "lucide-
 import { AnimatePresence, motion } from "framer-motion";
 import BlogCard from "@/components/blog/BlogCard";
 import { cn } from "@/lib/utils";
-import { useBlogStats, withStats } from "@/lib/blog-stats";
-import type { BlogWithRelations, CategoryRow } from "@/types/database";
+import { useBlogStats } from "@/lib/blog-stats";
+import type { BlogCardData } from "@/lib/blog-card";
+import type { CardCategory } from "@/types/database";
 
 const sortOptions = [
   { label: "Latest", value: "newest" },
@@ -18,39 +19,11 @@ const sortOptions = [
 ];
 
 interface HomePageClientProps {
-  featuredBlogs: BlogWithRelations[];
-  initialBlogs: BlogWithRelations[];
-  categories: CategoryRow[];
+  featuredBlogs: BlogCardData[];
+  initialBlogs: BlogCardData[];
+  categories: CardCategory[];
   stats: { label: string; value: string }[];
   faqs: { question: string; answer: string }[];
-}
-
-function adaptBlog(blog: BlogWithRelations) {
-  return {
-    id: blog.id,
-    title: blog.title,
-    slug: blog.slug,
-    excerpt: blog.excerpt ?? "",
-    content: blog.content,
-    featured_image: blog.featured_image ?? "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80",
-    category: blog.category
-      ? { id: blog.category.id, name: blog.category.name, slug: blog.category.slug, color: blog.category.color }
-      : { id: "0", name: "General", slug: "general", color: "#0D9488" },
-    tags: blog.tags ?? [],
-    author: blog.author
-      ? { name: blog.author.name, avatar: blog.author.avatar_url ?? "" }
-      : { name: "Dr. Sarah Mitchell", avatar: "" },
-    reading_time: blog.reading_time,
-    views_count: blog.views_count,
-    likes_count: blog.likes_count,
-    is_featured: blog.is_featured,
-    status: blog.status,
-    published_at: blog.published_at ?? blog.created_at,
-    created_at: blog.created_at,
-    updated_at: blog.updated_at,
-    meta_title: blog.meta_title ?? blog.title,
-    meta_description: blog.meta_description ?? blog.excerpt ?? "",
-  };
 }
 
 export default function HomePageClient({ featuredBlogs, initialBlogs, categories, stats, faqs }: HomePageClientProps) {
@@ -60,9 +33,12 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
   const [email, setEmail] = useState("");
   const [nlStatus, setNlStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
+  // Live view and like counts, loaded after mount (cached pages carry none).
   const blogStats = useBlogStats();
-  const adapted = initialBlogs.map((b) => withStats(adaptBlog(b), blogStats));
-  const adaptedFeatured = featuredBlogs.map(adaptBlog);
+  const views = (b: BlogCardData) => blogStats?.[b.id]?.[0] ?? 0;
+  const likes = (b: BlogCardData) => blogStats?.[b.id]?.[1] ?? 0;
+  const adapted = initialBlogs;
+  const adaptedFeatured = featuredBlogs;
 
   const filtered = adapted
     .filter((b) => activeCategory === "all" || b.category.slug === activeCategory)
@@ -71,9 +47,9 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
         case "oldest":
           return new Date(a.published_at).getTime() - new Date(b.published_at).getTime();
         case "most_read":
-          return b.views_count - a.views_count;
+          return views(b) - views(a);
         case "most_liked":
-          return b.likes_count - a.likes_count;
+          return likes(b) - likes(a);
         case "newest":
         default:
           return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
@@ -198,7 +174,7 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
             </div>
             <div className="grid md:grid-cols-3 gap-5">
               {adaptedFeatured.map((blog) => (
-                <BlogCard key={blog.id} blog={blog as any} variant="featured" />
+                <BlogCard key={blog.id} blog={blog} variant="featured" />
               ))}
             </div>
           </div>
@@ -281,7 +257,7 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
                     >
-                      <BlogCard blog={blog as any} />
+                      <BlogCard blog={blog} />
                     </motion.div>
                   ))}
                 </AnimatePresence>

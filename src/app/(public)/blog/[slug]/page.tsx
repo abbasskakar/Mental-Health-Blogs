@@ -1,4 +1,5 @@
 import { getBlogBySlug, getRelatedBlogs, getBlogComments, getAllBlogSlugs, getAdjacentBlogs } from "@/lib/supabase/queries";
+import { toBlogCard } from "@/lib/blog-card";
 import BlogDetailClient from "@/components/blog/BlogDetailClient";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -123,29 +124,7 @@ export default async function BlogDetailPage({ params }: Props) {
     meta_description: blog.meta_description ?? blog.excerpt ?? "",
   };
 
-  const adaptedRelated = relatedBlogs.map((rb) => ({
-    id: rb.id,
-    title: rb.title,
-    slug: rb.slug,
-    excerpt: rb.excerpt ?? "",
-    content: rb.content,
-    featured_image: rb.featured_image ?? "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80",
-    category: rb.category
-      ? { id: rb.category.id, name: rb.category.name, slug: rb.category.slug, color: rb.category.color }
-      : { id: "0", name: "Uncategorized", slug: "uncategorized", color: "#10b981" },
-    tags: rb.tags ?? [],
-    author: rb.author ? { name: rb.author.name, avatar: rb.author.avatar_url ?? "" } : { name: "Dr. Sarah Mitchell", avatar: "" },
-    reading_time: rb.reading_time,
-    views_count: rb.views_count,
-    likes_count: rb.likes_count,
-    is_featured: rb.is_featured,
-    status: rb.status,
-    published_at: rb.published_at ?? rb.created_at,
-    created_at: rb.created_at,
-    updated_at: rb.updated_at,
-    meta_title: rb.meta_title ?? rb.title,
-    meta_description: rb.meta_description ?? rb.excerpt ?? "",
-  }));
+  const adaptedRelated = relatedBlogs.map(toBlogCard);
 
   const canonicalUrl = blog.canonical_url ?? absoluteUrl(`/blog/${slug}`);
 

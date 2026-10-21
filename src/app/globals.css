@@ -352,3 +352,29 @@
 .fade-in {
   animation: fade-in-up 350ms ease-out;
 }
+
+/* Listing card (src/components/blog/BlogCard.tsx).
+   One class per element instead of a utility string and an inline style on
+   each. /blog renders a card for every post, and Vercel bills the cached page
+   by the 8 KB, so each byte of card markup is paid for 190+ times.
+
+   The old card also had hover:border-[var(--accent)] on the article and
+   group-hover:text-[var(--accent)] on the title, but both lost to the inline
+   style on the same element, so neither ever showed. They are left out here
+   so the card looks exactly as it did; add them back on purpose if wanted. */
+@layer components {
+  .post-card {
+    @apply flex flex-col h-full rounded-xl border overflow-hidden bg-surface border-line transition-all duration-200 hover:shadow-[0_8px_24px_rgba(13,148,136,0.1)] hover:-translate-y-0.5;
+  }
+  .post-card-media { @apply relative h-48 overflow-hidden block flex-shrink-0; }
+  .post-card-img { @apply w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]; }
+  .post-card-pill { @apply text-xs font-semibold px-2.5 py-1 rounded-md text-[#111827] bg-[rgba(255,255,255,0.92)]; }
+  .post-card-body { @apply flex flex-col flex-1 p-5; }
+  .post-card-meta { @apply flex items-center gap-2.5 text-xs mb-3 text-faint; }
+  .post-card-row { @apply flex items-center gap-1; }
+  .post-card-title { @apply font-semibold text-base leading-snug line-clamp-2 mb-2.5 text-heading transition-colors duration-150; }
+  .post-card-excerpt { @apply text-sm line-clamp-2 leading-relaxed flex-1 text-body; }
+  .post-card-foot { @apply flex items-center justify-between mt-4 pt-4 border-t border-line; }
+  .post-card-author { @apply flex items-center gap-2; }
+  .post-card-read { @apply flex items-center gap-1 text-xs font-medium text-accent transition-colors duration-150 hover:gap-1.5; }
+}

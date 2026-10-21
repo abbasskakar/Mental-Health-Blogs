@@ -2,7 +2,8 @@ import { getPublishedBlogs, getBlogsByTag } from "@/lib/supabase/queries";
 import BlogCard from "@/components/blog/BlogCard";
 import Link from "next/link";
 import type { Metadata } from "next";
-import type { BlogWithRelations } from "@/types/database";
+import { toBlogCard } from "@/lib/blog-card";
+import type { BlogCardRow } from "@/types/database";
 
 interface Props {
   searchParams: Promise<{ q?: string; tag?: string }>;
@@ -14,36 +15,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-function adaptBlog(blog: BlogWithRelations) {
-  return {
-    id: blog.id,
-    title: blog.title,
-    slug: blog.slug,
-    excerpt: blog.excerpt ?? "",
-    content: blog.content,
-    featured_image: blog.featured_image ?? "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80",
-    category: blog.category
-      ? { id: blog.category.id, name: blog.category.name, slug: blog.category.slug, color: blog.category.color }
-      : { id: "0", name: "General", slug: "general", color: "#0D9488" },
-    tags: blog.tags ?? [],
-    author: blog.author ? { name: blog.author.name, avatar: blog.author.avatar_url ?? "" } : { name: "Dr. Sarah Mitchell", avatar: "" },
-    reading_time: blog.reading_time,
-    views_count: blog.views_count,
-    likes_count: blog.likes_count,
-    is_featured: blog.is_featured,
-    status: blog.status,
-    published_at: blog.published_at ?? blog.created_at,
-    created_at: blog.created_at,
-    updated_at: blog.updated_at,
-    meta_title: blog.meta_title ?? blog.title,
-    meta_description: blog.meta_description ?? blog.excerpt ?? "",
-  };
-}
-
 export default async function SearchPage({ searchParams }: Props) {
   const { q, tag } = await searchParams;
 
-  let results: BlogWithRelations[] = [];
+  let results: BlogCardRow[] = [];
   let label = "";
 
   if (tag) {
@@ -55,7 +30,7 @@ export default async function SearchPage({ searchParams }: Props) {
     label = `Results for "${q}"`;
   }
 
-  const adapted = results.map(adaptBlog);
+  const adapted = results.map(toBlogCard);
   const hasQuery = Boolean(q || tag);
 
   return (
@@ -85,7 +60,7 @@ export default async function SearchPage({ searchParams }: Props) {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {adapted.map((blog) => (
-              <BlogCard key={blog.id} blog={blog as never} />
+              <BlogCard key={blog.id} blog={blog} />
             ))}
           </div>
         )}

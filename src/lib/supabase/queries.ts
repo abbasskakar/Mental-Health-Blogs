@@ -5,7 +5,13 @@
 
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
 import { createClient } from '@supabase/supabase-js';
-import type { BlogWithRelations, CategoryRow, CommentRow, PublicAuthor } from '@/types/database';
+import type {
+  BlogCardRow,
+  BlogWithRelations,
+  CategoryRow,
+  CommentRow,
+  PublicAuthor,
+} from '@/types/database';
 
 /**
  * Creates a simple Supabase client WITHOUT cookies - safe for use in
@@ -22,31 +28,27 @@ function createStaticClient() {
 // private email column never reaches a page (see sql/authors_hide_email.sql).
 const AUTHOR_COLUMNS = 'id, name, bio, avatar_url, credentials, twitter_url, linkedin_url';
 
-// Every blog column a card needs — i.e. all but the article body. Listings
-// used to select *, which shipped each post's full HTML to the browser just to
-// render a title and an excerpt (~20 KB per card).
+// Only what a listing card shows. Listings used to select every column but the
+// body, and every card then carried its post's meta title, meta description,
+// canonical URL, timestamps and the whole author and category rows into the
+// cached page. /blog lists every post, so Vercel billed each of those fields
+// 191 times over on every ISR write.
 const CARD_COLUMNS =
   'id, title, slug, excerpt, featured_image, category_id, author_id, tags, reading_time, ' +
-  'views_count, likes_count, is_featured, status, meta_title, meta_description, canonical_url, ' +
-  'published_at, scheduled_at, created_at, updated_at';
-const CARD_SELECT = `${CARD_COLUMNS}, category:categories(*), author:authors(${AUTHOR_COLUMNS})`;
+  'is_featured, published_at, created_at';
+const CARD_SELECT =
+  `${CARD_COLUMNS}, category:categories(id, name, slug, color), author:authors(id, name, avatar_url)`;
 
-/**
- * Card rows carry no body; `content` is blanked so they still fit BlogWithRelations.
- *
- * View and like counts are zeroed as well. They change with every visit, and a
- * count baked into a cached page made each hourly revalidation a fresh ISR
- * write (242K of the Hobby plan's 200K a month). Browsers load the live counts
- * from /api/blogs/stats instead (see src/lib/blog-stats.ts).
- */
-function asCards(rows: unknown[] | null): BlogWithRelations[] {
-  return (rows ?? []).map((r) => ({
-    content: '',
-    schema_markup: null,
-    ...(r as object),
-    views_count: 0,
-    likes_count: 0,
-  })) as BlogWithRelations[];
+type CardQueryRow = Omit<BlogCardRow, 'published_at'> & {
+  published_at: string | null;
+  created_at: string;
+};
+
+function asCards(rows: unknown[] | null): BlogCardRow[] {
+  return ((rows ?? []) as CardQueryRow[]).map(({ created_at, published_at, ...row }) => ({
+    ...row,
+    published_at: published_at ?? created_at,
+  }));
 }
 
 /**
@@ -252,7 +254,7 @@ export async function getBlogsSitemapData(): Promise<
 /**
  * getBlogsByTag — published posts that contain the given tag.
  */
-export async function getBlogsByTag(tag: string): Promise<BlogWithRelations[]> {
+export async function getBlogsByTag(tag: string): Promise<BlogCardRow[]> {
   const supabase = createStaticClient();
   const { data, error } = await supabase
     .from('blogs')
@@ -266,6 +268,36 @@ export async function getBlogsByTag(tag: string): Promise<BlogWithRelations[]> {
     return [];
   }
   return asCards(data);
+}
+
+/**
+ * getFeedPosts — every published post with what the RSS feed prints. Separate
+ * from the card query so the feed can keep using each post's meta description
+ * without every listing page carrying it too.
+ */
+export async function getFeedPosts() {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from('blogs')
+    .select('title, slug, excerpt, meta_description, published_at, created_at, category:categories(name), author:authors(name)')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    .limit(500);
+
+  if (error) {
+    console.error('getFeedPosts error:', error);
+    return [];
+  }
+  return (data ?? []) as unknown as {
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    meta_description: string | null;
+    published_at: string | null;
+    created_at: string;
+    category: { name: string } | null;
+    author: { name: string } | null;
+  }[];
 }
 
 /**

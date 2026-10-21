@@ -2,20 +2,25 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Eye, ArrowRight } from "lucide-react";
-import { cn, formatDateShort, formatNumber } from "@/lib/utils";
-import type { Blog } from "@/types";
+import { formatDateShort, formatNumber } from "@/lib/utils";
+import type { BlogCardData } from "@/lib/blog-card";
 import AuthorAvatar from "@/components/blog/AuthorAvatar";
+import { CardIcon } from "@/components/blog/CardIcons";
 import { useBlogStats } from "@/lib/blog-stats";
 
 interface BlogCardProps {
-  blog: Blog;
+  blog: BlogCardData;
   variant?: "default" | "featured" | "compact" | "horizontal";
   /** Preload the cover image. Only for cards visible on first paint: preloading
    *  a whole grid makes every card compete with the page's real LCP image. */
   preload?: boolean;
 }
 
+// Every card's markup is multiplied by the post count on /blog, and Vercel
+// bills a cached page by the 8 KB. So the card's styling lives in the
+// `.post-card*` classes in globals.css instead of a long utility string and an
+// inline style per element, and its icons are <use> references to the sprite
+// in the public layout (see CardIcons.tsx).
 export default function BlogCard({ blog, variant = "default", preload = false }: BlogCardProps) {
   // Cached pages carry no counts; the live number arrives after mount.
   const views = useBlogStats()?.[blog.id]?.[0];
@@ -50,10 +55,10 @@ export default function BlogCard({ blog, variant = "default", preload = false }:
           </div>
           <div className="flex items-center gap-3 text-xs mt-1.5" style={{ color: "var(--text-subtle)" }}>
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" strokeWidth={1.5} /> {blog.reading_time} min
+              <CardIcon name="clock" className="w-3 h-3" /> {blog.reading_time} min
             </span>
             <span className="flex items-center gap-1">
-              <Eye className="w-3 h-3" strokeWidth={1.5} /> {views === undefined ? "" : formatNumber(views)}
+              <CardIcon name="eye" className="w-3 h-3" /> {views === undefined ? "" : formatNumber(views)}
             </span>
           </div>
         </div>
@@ -62,81 +67,60 @@ export default function BlogCard({ blog, variant = "default", preload = false }:
   }
 
   return (
-    <article
-      className="group flex flex-col h-full rounded-xl border overflow-hidden transition-all duration-200 hover:border-[var(--accent)] hover:shadow-[0_8px_24px_rgba(13,148,136,0.1)] hover:-translate-y-0.5"
-      style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-    >
-      {/* Image */}
-      <Link href={`/blog/${blog.slug}`} className="relative h-48 overflow-hidden block flex-shrink-0">
+    <article className="group post-card">
+      {/* Image. Sized explicitly rather than `fill` + `sizes`: that pair made
+          next/image list ten candidate widths (up to 3840px) in every card's
+          srcset, 250 KB of the page. A 1x/2x pair serves the same 640px and
+          1080px files a card actually picked. */}
+      <Link href={`/blog/${blog.slug}`} className="post-card-media">
         <Image
           src={blog.featured_image}
           alt={blog.title}
-          fill
+          width={420}
+          height={192}
           preload={preload}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+          className="post-card-img"
         />
         {/* Category — top left, clean pill */}
         <div className="absolute top-3 left-3">
-          <span
-            className="text-xs font-semibold px-2.5 py-1 rounded-md"
-            style={{ color: "#111827", background: "rgba(255,255,255,0.92)" }}
-          >
-            {blog.category.name}
-          </span>
+          <span className="post-card-pill">{blog.category.name}</span>
         </div>
       </Link>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 p-5">
+      <div className="post-card-body">
         {/* Meta row */}
-        <div className="flex items-center gap-2.5 text-xs mb-3" style={{ color: "var(--text-subtle)" }}>
+        <div className="post-card-meta">
           <span>{formatDateShort(blog.published_at)}</span>
           <span>·</span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" strokeWidth={1.5} /> {blog.reading_time} min read
+          <span className="post-card-row">
+            <CardIcon name="clock" className="w-3 h-3" />{` ${blog.reading_time} min read`}
           </span>
         </div>
 
         {/* Title */}
         <Link href={`/blog/${blog.slug}`}>
-          <h3
-            className="font-semibold text-base leading-snug line-clamp-2 mb-2.5 transition-colors duration-150 group-hover:text-[var(--accent)]"
-            style={{ color: "var(--text)" }}
-          >
-            {blog.title}
-          </h3>
+          <h3 className="post-card-title">{blog.title}</h3>
         </Link>
 
         {/* Excerpt */}
-        <p className="text-sm line-clamp-2 leading-relaxed flex-1" style={{ color: "var(--text-muted)" }}>
-          {blog.excerpt}
-        </p>
+        <p className="post-card-excerpt">{blog.excerpt}</p>
 
         {/* Footer */}
-        <div
-          className="flex items-center justify-between mt-4 pt-4 border-t"
-          style={{ borderColor: "var(--border)" }}
-        >
+        <div className="post-card-foot">
           {/* Author */}
-          <div className="flex items-center gap-2">
+          <div className="post-card-author">
             <AuthorAvatar
               name={blog.author.name}
               src={blog.author.avatar}
               className="w-6 h-6 rounded-full text-xs font-semibold"
             />
-            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-              {blog.author.name.split(" ").slice(-1)[0]}
-            </span>
+            <span className="text-xs text-body">{blog.author.name.split(" ").slice(-1)[0]}</span>
           </div>
 
           {/* Read link */}
-          <Link
-            href={`/blog/${blog.slug}`}
-            className="flex items-center gap-1 text-xs font-medium transition-colors duration-150 hover:gap-1.5"
-            style={{ color: "var(--accent)" }}
-          >
-            Read <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.75} />
+          <Link href={`/blog/${blog.slug}`} className="post-card-read">
+            Read <CardIcon name="arrow-right" className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
