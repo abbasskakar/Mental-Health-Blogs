@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, CheckCircle, Loader2, BookOpen } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -32,28 +32,45 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
   const [email, setEmail] = useState("");
   const [nlStatus, setNlStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
+  // Blogs shown in the grid — starts with the server-rendered batch,
+  // then replaced by a fresh API fetch whenever the user changes category or sort.
+  const [blogs, setBlogs] = useState<BlogCardData[]>(initialBlogs);
+  const [blogsLoading, setBlogsLoading] = useState(false);
+
   // Live view and like counts, loaded after mount (cached pages carry none).
   const blogStats = useBlogStats();
-  const views = (b: BlogCardData) => blogStats?.[b.id]?.[0] ?? 0;
-  const likes = (b: BlogCardData) => blogStats?.[b.id]?.[1] ?? 0;
-  const adapted = initialBlogs;
   const adaptedFeatured = featuredBlogs;
 
-  const filtered = adapted
-    .filter((b) => activeCategory === "all" || b.category.slug === activeCategory)
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "oldest":
-          return new Date(a.published_at).getTime() - new Date(b.published_at).getTime();
-        case "most_read":
-          return views(b) - views(a);
-        case "most_liked":
-          return likes(b) - likes(a);
-        case "newest":
-        default:
-          return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+  // Fetch fresh 9 blogs from the database whenever category or sort changes.
+  const fetchBlogs = useCallback(async (category: string, sort: string) => {
+    setBlogsLoading(true);
+    try {
+      const params = new URLSearchParams({ sort });
+      if (category && category !== "all") params.set("category", category);
+      const res = await fetch(`/api/blogs/home?${params.toString()}`);
+      if (res.ok) {
+        const data: BlogCardData[] = await res.json();
+        setBlogs(data);
       }
-    });
+    } catch {
+      // On error keep whatever is already shown
+    } finally {
+      setBlogsLoading(false);
+    }
+  }, []);
+
+  // Skip the initial render (server already provided the default set).
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  useEffect(() => {
+    if (isFirstRender) {
+      setIsFirstRender(false);
+      return;
+    }
+    fetchBlogs(activeCategory, sortBy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory, sortBy]);
+
+  const filtered = blogs;
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,7 +257,12 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
             </div>
           </div>
 
-          {filtered.length === 0 ? (
+          {blogsLoading ? (
+            <div className="text-center py-20">
+              <Loader2 className="w-8 h-8 mx-auto mb-3 animate-spin" style={{ color: "var(--accent)" }} strokeWidth={1.75} />
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>Loading articles...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-20">
               <BookOpen className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--text-subtle)" }} strokeWidth={1.5} />
               <p className="text-sm" style={{ color: "var(--text-muted)" }}>No articles in this category yet.</p>
@@ -262,7 +284,7 @@ export default function HomePageClient({ featuredBlogs, initialBlogs, categories
                 </AnimatePresence>
               </div>
 
-              {/* The server sends only the latest 6, so "load more" had nothing
+              {/* The server sends only the latest 9, so "load more" had nothing
                   to load — send readers to the full archive instead. */}
               <div className="text-center mt-10">
                 <Link

@@ -36,7 +36,7 @@ export default async function HomePage() {
   // Fetch data server-side (no loading state needed)
   const [featuredBlogs, { blogs: latestBlogs }, categories, siteStats] = await Promise.all([
     getFeaturedBlogs(3),
-    getPublishedBlogs({ limit: 6, sortBy: 'newest' }),
+    getPublishedBlogs({ limit: 9, sortBy: 'newest' }),
     getCategories(),
     getSiteStats(),
   ]);

@@ -248,18 +248,11 @@ export default function Navbar({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.22 }}
-              className="absolute right-0 top-0 bottom-0 w-64 shadow-soft-lg overflow-y-auto"
+              className="absolute right-0 top-0 bottom-0 w-52 shadow-soft-lg overflow-y-auto"
               style={{ background: "var(--surface)" }}
             >
-              <div className="flex items-center justify-end p-5 border-b" style={{ borderColor: "var(--border)" }}>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="p-1.5 rounded-lg"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  <X className="w-4 h-4" strokeWidth={1.75} />
-                </button>
-              </div>
+              {/* Top spacing so content doesn't hide behind the fixed header */}
+              <div className="h-16" />
 
               {/* Category links are rendered here too, not just in the desktop
                   dropdown — on mobile the drawer was the only nav and it
